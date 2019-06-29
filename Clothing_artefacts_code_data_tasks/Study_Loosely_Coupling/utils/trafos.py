@@ -167,4 +167,5 @@ def MRP_to_quaternion(mrp):
         q[1] = 2.0 * mrp[0] * quot
         q[2] = 2.0 * mrp[1] * quot
         q[3] = 2.0 * mrp[2] * quot
+    q = q / numpy.norm(q)
     return q

@@ -11,7 +11,11 @@ class Evaluation():
         return q1.inverse* q2
 
     def scalarAngleErr(self, qRel):
-        return 2 * np.arccos(qRel.elements[0])*self.ToDeg
+        value = max(-1.0,min(qRel.elements[0], 1.0))
+        value = 2 * np.arccos(value)*self.ToDeg
+        if(value > 180):
+            value = abs(360 - value)
+        return value
 
     def angleErr(self, q1, q2):
         return self.scalarAngleErr(self.qRel(q1, q2))
@@ -70,7 +74,9 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
             avgErrEuler[-1] += eulerAngles
 
         avgErr[-1] /= nTime
-        avgErrEuler[-1] /= nTime
+        # if(avgErr[-1] > 180):
+        #     avgErr[-1] = abs(360 - avgErr[-1])
+        # avgErrEuler[-1] /= nTime
         # print("Average total error: " + str(avgErr[-1]))
         # print("Average error per axis (x,y,z): " + str(avgErrEuler[-1]))
     return errSeq, errSeqEuler, avgErr, avgErrEuler
