@@ -1,17 +1,14 @@
-import os, sys, inspect, csv
-from pathlib import Path
-import statistics
+import inspect
 import math
+import os
+import sys
+
 import pandas as pd
-from bokeh.models import ColumnDataSource, CustomJS
-from bokeh.plotting import figure, output_file, show, save
-from bokeh.models.ranges import Range1d
+from bokeh import events
+from bokeh.models import CustomJS
 from bokeh.models.annotations import Title
 from bokeh.palettes import inferno
-from bokeh import events
-
-from bokeh.models.glyphs import Line as Line_glyph
-import numpy
+from bokeh.plotting import figure, output_file, save
 
 # from loaddatasets.loaddata import loadDataLoosely
 
@@ -31,9 +28,6 @@ sys.path.append('../loaddatasets/')
 sys.path.append('../datavisulaization/')
 
 from utils.evaluationMethods import *
-from datavisualization.visutilsQt import drawSkelQt
-from loaddatasets.loaddata import LoadData
-
 
 # Load data
 pathLearningData = '../data/'
@@ -245,12 +239,7 @@ if executeBlock == 2:
     for index, rowsOfReadErrorData in readErrorData.iterrows():
         if rowsOfReadErrorData[0] == 'P1' and rowsOfReadErrorData[1] != counter:                           # Plot for the previous movement if the current movement changed. This means that all the data for the previous movement is plotted. But if it is the last movement then plot that, as we will not come in this block of code again.
             p.line(x=segmentsArrayForPlot, y=avgErrorArrayForPlot, legend=movementList[counter], color=myPalatte[counter], line_width=2)
-            # show(p)
-            # meanSquaredErrorArrayForPlot = []                                                     # Reset all arrays
-            # standardDeviationArrayForPlot = []                                                    # Reset all arrays
-            # segmentsArrayForPlot = []                                                             # Reset all arrays
             avgErrorArrayForPlot = []
-            # eulerAvgErrorArrayForPlot = []
             # # End if
         if rowsOfReadErrorData[2] == 'Head' and rowsOfReadErrorData[3] == 'T8':
             segmentsArrayForPlot.append('Neck')
@@ -282,7 +271,6 @@ if executeBlock == 2:
             segmentsArrayForPlot.append('Left Ankle')
 
         avgErrorArrayForPlot.append(rowsOfReadErrorData[4])
-        # eulerAvgErrorArrayForPlot.append(rows[4])
         counter = rowsOfReadErrorData[1]
     # p.legend.location = "top_left"
     p.xaxis.major_label_orientation = math.pi / 2
@@ -296,8 +284,6 @@ if executeBlock == 2:
     p.js_on_event(events.DoubleTap, CustomJS.from_py_func(show_hide_legend))
     p.legend.glyph_height = 5
     p.legend.click_policy = "hide"
-    # p.legend.click_policy = "mute"
-    # p.legend.label_text_font_size = '3pt'
     save(p)
 
 #Loosely coupled
