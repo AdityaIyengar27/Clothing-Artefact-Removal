@@ -1,8 +1,13 @@
 import numpy as np
-from loaddatasets.loadAnimationFiles import loadAnimationFile, loadAnimationFileRef
-from loaddatasets.loadCalibrationFiles import loadCalibFile, loadCalibFileRef
-from loaddatasets.loadIMUData import loadIMUData, loadIMUDataRef
-from utils.trafos import quaternion_matrix, quationion_to_MRP, MRP_to_quaternion
+# from loaddatasets.loadAnimationFiles import loadAnimationFile, loadAnimationFileRef
+# from loaddatasets.loadCalibrationFiles import loadCalibFile, loadCalibFileRef
+# from loaddatasets.loadIMUData import loadIMUData, loadIMUDataRef
+# from utils.trafos import quaternion_matrix, quationion_to_MRP, MRP_to_quaternion
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.loaddatasets.loadAnimationFiles import loadAnimationFile, loadAnimationFileRef
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.loaddatasets.loadCalibrationFiles import loadCalibFile, loadCalibFileRef
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.loaddatasets.loadIMUData import loadIMUData, loadIMUDataRef
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.utils.trafos import quaternion_matrix, quationion_to_MRP, MRP_to_quaternion
+
 import os
 
 class structtype():

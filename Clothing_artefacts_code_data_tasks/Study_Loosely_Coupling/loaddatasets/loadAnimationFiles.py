@@ -1,5 +1,6 @@
 import numpy as np
-from utils.trafos import quaternion_matrix4x4
+# from utils.trafos import quaternion_matrix4x4
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.utils.trafos import quaternion_matrix4x4
 
 class structtype():
     pass
