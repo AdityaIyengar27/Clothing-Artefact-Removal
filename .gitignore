@@ -7,5 +7,7 @@
 *.iml
 out
 gen
+README.md
+
 *.pyc
 *.DS_STORE
