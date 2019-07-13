@@ -1,6 +1,7 @@
 import numpy as np
 from pyquaternion import Quaternion
-from utils.trafos import euler_from_quaternion
+# from utils.trafos import euler_from_quaternion
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.utils.trafos import euler_from_quaternion
 import matplotlib.pyplot as plt
 
 class Evaluation():
@@ -11,7 +12,7 @@ class Evaluation():
         return q1.inverse* q2
 
     def scalarAngleErr(self, qRel):
-        value = max(-1.0,min(qRel.elements[0], 1.0))
+        value = max(-1.0, min(qRel.elements[0], 1.0))
         value = 2 * np.arccos(value)*self.ToDeg
         if(value > 180):
             value = abs(360 - value)
@@ -36,6 +37,11 @@ class Evaluation():
         errAngles = np.asarray(euler_from_quaternion(np.asarray(self.qRel(qRel1, qRel2).elements), axes='sxyz'))
         return np.abs(errAngles)*self.ToDeg
 
+    # defination to return actual orientation angles
+    def findAngle(self, segment1, segment2):
+        angleValue = self.qRel(segment1, segment2)
+        angleValue = self.scalarAngleErr(angleValue)
+        return angleValue
 
 def computeErrSegs(errSegs, dataLoosely, dataTightly):
     err = Evaluation()
@@ -43,6 +49,8 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
     avgErrEuler = []
     errSeq = []
     errSeqEuler = []
+    angleValueForDataLooselyArray = []
+    angleValueForDataTightlyArray = []
     nTime = min(dataTightly.aData.nTime, dataLoosely.aData.nTime)
     for i in range(len(errSegs)):
         avgErr.append(0)
@@ -64,6 +72,8 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
                 qL_sg1 = Quaternion(dataLoosely.getQuatSegment(errSegs[i][1], t))
                 totalAngleErr = err.angleErrRel(qT_sg0, qT_sg1, qL_sg0, qL_sg1)
                 eulerAngles = err.angleErrEulerRel(qT_sg0, qT_sg1, qL_sg0, qL_sg1)
+                angleValueForDataTightlyArray.append(err.findAngle(qT_sg0, qT_sg1))
+                angleValueForDataLooselyArray.append(err.findAngle(qL_sg0, qL_sg1))
 
             errSeq[-1][t] = totalAngleErr
             # print("Error in deg: " + str(totalAngleErr) + " at time: " + str(t))
@@ -79,7 +89,7 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
         # avgErrEuler[-1] /= nTime
         # print("Average total error: " + str(avgErr[-1]))
         # print("Average error per axis (x,y,z): " + str(avgErrEuler[-1]))
-    return errSeq, errSeqEuler, avgErr, avgErrEuler
+    return errSeq, errSeqEuler, avgErr, avgErrEuler, angleValueForDataLooselyArray, angleValueForDataTightlyArray
 
 def plotErrSegs(loader, errSegs, errSegsSeq):
     rows = 1

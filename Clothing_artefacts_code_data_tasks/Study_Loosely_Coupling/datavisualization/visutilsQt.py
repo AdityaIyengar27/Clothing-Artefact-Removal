@@ -3,12 +3,13 @@ from PyQt5 import QtCore, QtGui
 import sys
 import pyqtgraph.opengl as gl
 from pyqtgraph import Transform3D
-from datavisualization.customClasses import GLAxisItemOwn, SegmentItem
+# from datavisualization.customClasses import GLAxisItemOwn, SegmentItem
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.datavisualization.customClasses import GLAxisItemOwn, SegmentItem
 import numpy as np
 import pyqtgraph as pg
 
-from utils.evaluationMethods import Evaluation, Quaternion
-
+# from utils.evaluationMethods import Evaluation, Quaternion
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.utils.evaluationMethods import Evaluation, Quaternion
 class Viewer():
     def __init__(self, errSegs = []):
         self.app = QApplication([])
