@@ -32,6 +32,7 @@ sys.path.append('../datavisulaization/')
 # from utils.evaluationMethods import *
 from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.utils.evaluationMethods import *
 from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.loaddatasets.loaddata import LoadData
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.datavisualization.visutilsQt import drawSkelQt
 # Load data
 pathLearningData = '../data/'
 
@@ -88,7 +89,7 @@ scenarioList = ["Loose", "Tight"]
 movementNrList = list((range(1, 20)))
 
 # Flag to decide calculation of joint orientation error or segment error
-executeBlock = 3
+executeBlock = 2
 if executeBlock == 2:
     fileName = 'JointOrientationError.csv'
 elif executeBlock == 1:
@@ -101,98 +102,99 @@ elif executeBlock == 3:
 #     fileToTruncate = open(fileName, "w")
 #     fileToTruncate.truncate()
 #     fileToTruncate.close()
-
-# Fixed list of segment and segment pairs to find joint orientation errors
-segmentPairs = {'Head': 'T8', 'RightUpperArm': ['T8', 'RightForeArm'], 'LeftUpperArm': ['T8', 'LeftForeArm'], 'RightForeArm': 'RightHand', 'LeftForeArm': 'LeftHand', 'T8': 'Pelvis', 'Pelvis': ['RightUpperLeg', 'LeftUpperLeg'], 'RightUpperLeg': 'RightLowerLeg', 'LeftUpperLeg': 'LeftLowerLeg', 'RightLowerLeg': 'RightFoot', 'LeftLowerLeg': 'LeftFoot'}
-segmentNameList = ['Pelvis', 'T8', 'Head', 'RightShoulder', 'RightUpperArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftUpperArm', 'LeftForeArm', 'LeftHand', 'RightUpperLeg', 'RightLowerLeg', 'RightFoot', 'LeftUpperLeg', 'LeftLowerLeg', 'LeftFoot']
-movementList = ['', 'N-Pose', 'Three Step Calibration Palm Front', 'Three Step Calibration N-Pose', 'X Sense Gait Calibration', 'Trunk Flexion Extension', 'Truck Rotation', 'Trunk Side Bending', 'Squats', 'Upper Arm Flexion Extension', 'Upper Arm Abduction Closed Sleeve', 'Upper Arm Abduction Open Sleeve', 'Upper Arm Rotation Open Sleeve', 'Shrugging Open Sleeve', 'Lover Arm Flexion Open Sleeve', 'Lower Arm Flexion Upper Arm Flexed 90 Degree Open Sleeve', 'Lower Arm Rotation Open Sleeve', 'Picking Up from Floor - Putting to Shelf Open Sleeve', 'Picking Up from Floor - Walking - Putting Down Open Sleeve', 'Screwing Light Bulb Open Sleeve']
-
-# Write the relevent infomation to the file
-with open(fileName, 'w') as outcsv:
-    fieldnames = []
-    if(executeBlock == 1):
-        # Write into 'SegmentErrorData.csv'
-        fieldnames = ["Subject", "Movement", "Segment", "TotalAngleAvgError", "TotalEulerAvgError", "MeanSquaredError", "Standard Deviation"]
-        writer = csv.DictWriter(outcsv, fieldnames=fieldnames)
-        writer.writeheader()  # Write the header into the file
-    elif executeBlock == 2:
-        # Write into 'JointOrientationError.csv'
-        fieldnames = ["Subject", "Movement", "Segment1", "Segment2", "TotalAngleAvgError", "TotalEulerAvgError", "MeanSquaredError", "Standard Deviation"]
-        writer = csv.DictWriter(outcsv, fieldnames=fieldnames)
-        writer.writeheader()  # Write the header into the file
-    elif executeBlock == 3:
-        # Write into 'AngleData.csv'
-        csvWriter = csv.writer(outcsv, dialect='excel')
-
-    for subject in subjectList:                         # Subjects - P1 and P2
-        for movement in movementNrList:                 # MovementList - 1 - 19
-            for scenario in scenarioList:               # ScenarioList - Loosely and tightly
-                LabelData_List = [subject, pathLearningData, scenario, "{:03d}".format(movement)]
-                data = LoadData(skelColor=[1, 0, 0, 0.5])
-                data.readData(LabelData_List, ['a', 'c', 'i'])
-                dataLoad.append(data)
-
-            # Condition to decide calculation of joint orientation error or segment error, 1 = segment error, 2 = joint orientation error
-            if executeBlock == 1:
-                # Calculation of segment error
-                # segmentNameList = list(dataLoad[0].cData.segNamesByValue.values())
-                for segment in segmentNameList:
-                    meanSquaredError = 0
-                    standardDeviation = 0
-                    errSeq, errSeqEuler, avgErr, avgErrEuler = computeErrSegs([[dataLoad[0].getSegIdxByName(segment)]], dataLoad[0], dataLoad[1])
-                    # for values in errSeq[0]:
-                    #     meanSquaredError += (values - avgErr)**2
-                    # meanSquaredError = meanSquaredError / len(errSeq[0])
-                    # print("Mean Squared : ", meanSquaredError)
-                    meanSquaredError = statistics.variance(errSeq[0])
-                    standardDeviation = statistics.stdev(errSeq[0])
-                    # print("standard deviation : ", standardDeviation)
-                    # print("Variance : ", statistics.variance(errSeq[0]))
-                    # print("Mean Error: ", meanSquaredError)
-                    # writer.writerow({subject, movement, segment, avgErr, avgErrEuler})
-                    # writer.writerow({'Subject': subject, 'Movement': movement, 'Segment': segment, 'TotalAngleAvgError': avgErr[0], 'TotalEulerAvgError': avgErrEuler[0], 'MeanSquaredError': meanSquaredError, 'Standard Deviation': standardDeviation})
-            elif executeBlock == 2 or executeBlock == 3:
-                # Calculation of joint orientation error
-                for pairs in segmentPairs:
-                    if isinstance(segmentPairs[pairs], list):
-                        # If a key has multiple values, Ex. 'RightUpperArm': ['T8', 'RightForeArm'],
-                        for value in segmentPairs[pairs]:
-                            meanSquaredError = 0
-                            standardDeviation = 0
-                            jointPosition = determineJointPositionBetween2Segemnts(pairs, value)
-                            errSeq, errSeqEuler, avgErr, avgErrEuler, looselyDataAngle, tightlyDataAngle = computeErrSegs([[dataLoad[0].getSegIdxByName(pairs), dataLoad[0].getSegIdxByName(value)]], dataLoad[0], dataLoad[1])
-                            # for values in errSeq[0]:
-                            #     meanSquaredError += (values - avgErr) ** 2
-                            # meanSquaredError = meanSquaredError / len(errSeq[0])
-                            if executeBlock == 3:
-                                makeAngleFile(csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
-
-                            meanSquaredError = statistics.variance(errSeq[0])
-                            standardDeviation = statistics.stdev(errSeq[0])
-                            # print(errSeq, errSeqEuler, avgErr, avgErrEuler)
-                            # writer.writerow({'Subject': subject, 'Movement': movement, 'Segment1': pairs, 'Segment2':value,
-                            #                  'TotalAngleAvgError': avgErr[0], 'TotalEulerAvgError': avgErrEuler[0], 'MeanSquaredError': meanSquaredError, 'Standard Deviation': standardDeviation})
-                    else:
-                        # If key has single value, Ex. 'Head': 'T8',
-                        meanSquaredError = 0
-                        standardDeviation = 0
-                        jointPosition = determineJointPositionBetween2Segemnts(pairs, segmentPairs[pairs])
-                        errSeq, errSeqEuler, avgErr, avgErrEuler, looselyDataAngle, tightlyDataAngle = computeErrSegs(
-                            [[dataLoad[0].getSegIdxByName(pairs), dataLoad[0].getSegIdxByName(segmentPairs[pairs])]], dataLoad[0],
-                            dataLoad[1])
-
-                        if executeBlock == 3:
-                            makeAngleFile(csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
-                        # for values in errSeq[0]:
-                        #     meanSquaredError += (values - avgErr) ** 2
-                        # meanSquaredError = meanSquaredError / len(errSeq[0])
-                        meanSquaredError = statistics.variance(errSeq[0])
-                        standardDeviation = statistics.stdev(errSeq[0])
-                        # writer.writerow({'Subject': subject, 'Movement': movement, 'Segment1': pairs, 'Segment2': segmentPairs[pairs],
-                        #                  'TotalAngleAvgError': avgErr[0], 'TotalEulerAvgError': avgErrEuler[0], 'MeanSquaredError': meanSquaredError, 'Standard Deviation': standardDeviation})
-                        # print(errSeq, errSeqEuler, avgErr, avgErrEuler)
-
-            dataLoad = []
+#
+# # Fixed list of segment and segment pairs to find joint orientation errors
+# segmentPairs = {'Head': 'T8', 'RightUpperArm': ['T8', 'RightForeArm'], 'LeftUpperArm': ['T8', 'LeftForeArm'], 'RightForeArm': 'RightHand', 'LeftForeArm': 'LeftHand', 'T8': 'Pelvis', 'Pelvis': ['RightUpperLeg', 'LeftUpperLeg'], 'RightUpperLeg': 'RightLowerLeg', 'LeftUpperLeg': 'LeftLowerLeg', 'RightLowerLeg': 'RightFoot', 'LeftLowerLeg': 'LeftFoot'}
+# segmentNameList = ['Pelvis', 'T8', 'Head', 'RightShoulder', 'RightUpperArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftUpperArm', 'LeftForeArm', 'LeftHand', 'RightUpperLeg', 'RightLowerLeg', 'RightFoot', 'LeftUpperLeg', 'LeftLowerLeg', 'LeftFoot']
+# movementList = ['', 'N-Pose', 'Three Step Calibration Palm Front', 'Three Step Calibration N-Pose', 'X Sense Gait Calibration', 'Trunk Flexion Extension', 'Truck Rotation', 'Trunk Side Bending', 'Squats', 'Upper Arm Flexion Extension', 'Upper Arm Abduction Closed Sleeve', 'Upper Arm Abduction Open Sleeve', 'Upper Arm Rotation Open Sleeve', 'Shrugging Open Sleeve', 'Lover Arm Flexion Open Sleeve', 'Lower Arm Flexion Upper Arm Flexed 90 Degree Open Sleeve', 'Lower Arm Rotation Open Sleeve', 'Picking Up from Floor - Putting to Shelf Open Sleeve', 'Picking Up from Floor - Walking - Putting Down Open Sleeve', 'Screwing Light Bulb Open Sleeve']
+#
+# # Write the relevent infomation to the file
+# with open(fileName, 'w') as outcsv:
+#     fieldnames = []
+#     if(executeBlock == 1):
+#         # Write into 'SegmentErrorData.csv'
+#         fieldnames = ["Subject", "Movement", "Segment", "TotalAngleAvgError", "TotalEulerAvgError", "MeanSquaredError", "Standard Deviation"]
+#         writer = csv.DictWriter(outcsv, fieldnames=fieldnames)
+#         writer.writeheader()  # Write the header into the file
+#     elif executeBlock == 2:
+#         # Write into 'JointOrientationError.csv'
+#         fieldnames = ["Subject", "Movement", "Segment1", "Segment2", "TotalAngleAvgError", "TotalEulerAvgError", "MeanSquaredError", "Standard Deviation"]
+#         writer = csv.DictWriter(outcsv, fieldnames=fieldnames)
+#         writer.writeheader()  # Write the header into the file
+#     elif executeBlock == 3:
+#         # Write into 'AngleData.csv'
+#         csvWriter = csv.writer(outcsv, dialect='excel')
+#
+#     for subject in subjectList:                         # Subjects - P1 and P2
+#         for movement in movementNrList:                 # MovementList - 1 - 19
+#             for scenario in scenarioList:               # ScenarioList - Loosely and tightly
+#                 LabelData_List = [subject, pathLearningData, scenario, "{:03d}".format(movement)]
+#                 data = LoadData(skelColor=[1, 0, 0, 0.5])
+#                 data.readData(LabelData_List, ['a', 'c', 'i'])
+#                 dataLoad.append(data)
+#
+#             # Condition to decide calculation of joint orientation error or segment error, 1 = segment error, 2 = joint orientation error
+#             if executeBlock == 1:
+#                 # Calculation of segment error
+#                 # segmentNameList = list(dataLoad[0].cData.segNamesByValue.values())
+#                 for segment in segmentNameList:
+#                     meanSquaredError = 0
+#                     standardDeviation = 0
+#
+#                     errSeq, errSeqEuler, avgErr, avgErrEuler, looselyDataAngle, tightlyDataAngle = computeErrSegs([[dataLoad[0].getSegIdxByName(segment)]], dataLoad[0], dataLoad[1])
+#                     # for values in errSeq[0]:
+#                     #     meanSquaredError += (values - avgErr)**2
+#                     # meanSquaredError = meanSquaredError / len(errSeq[0])
+#                     # print("Mean Squared : ", meanSquaredError)
+#                     meanSquaredError = statistics.variance(errSeq[0])
+#                     standardDeviation = statistics.stdev(errSeq[0])
+#                     # print("standard deviation : ", standardDeviation)
+#                     # print("Variance : ", statistics.variance(errSeq[0]))
+#                     # print("Mean Error: ", meanSquaredError)
+#                     # writer.writerow({subject, movement, segment, avgErr, avgErrEuler})
+#                     writer.writerow({'Subject': subject, 'Movement': movement, 'Segment': segment, 'TotalAngleAvgError': avgErr[0], 'TotalEulerAvgError': avgErrEuler[0], 'MeanSquaredError': meanSquaredError, 'Standard Deviation': standardDeviation})
+#             elif executeBlock == 2 or executeBlock == 3:
+#                 # Calculation of joint orientation error
+#                 for pairs in segmentPairs:
+#                     if isinstance(segmentPairs[pairs], list):
+#                         # If a key has multiple values, Ex. 'RightUpperArm': ['T8', 'RightForeArm'],
+#                         for value in segmentPairs[pairs]:
+#                             meanSquaredError = 0
+#                             standardDeviation = 0
+#                             jointPosition = determineJointPositionBetween2Segemnts(pairs, value)
+#                             errSeq, errSeqEuler, avgErr, avgErrEuler, looselyDataAngle, tightlyDataAngle = computeErrSegs([[dataLoad[0].getSegIdxByName(pairs), dataLoad[0].getSegIdxByName(value)]], dataLoad[0], dataLoad[1])
+#                             # for values in errSeq[0]:
+#                             #     meanSquaredError += (values - avgErr) ** 2
+#                             # meanSquaredError = meanSquaredError / len(errSeq[0])
+#                             if executeBlock == 3:
+#                                 makeAngleFile(csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
+#
+#                             meanSquaredError = statistics.variance(errSeq[0])
+#                             standardDeviation = statistics.stdev(errSeq[0])
+#                             # print(errSeq, errSeqEuler, avgErr, avgErrEuler)
+#                             writer.writerow({'Subject': subject, 'Movement': movement, 'Segment1': pairs, 'Segment2':value,
+#                                              'TotalAngleAvgError': avgErr[0], 'TotalEulerAvgError': avgErrEuler[0], 'MeanSquaredError': meanSquaredError, 'Standard Deviation': standardDeviation})
+#                     else:
+#                         # If key has single value, Ex. 'Head': 'T8',
+#                         meanSquaredError = 0
+#                         standardDeviation = 0
+#                         jointPosition = determineJointPositionBetween2Segemnts(pairs, segmentPairs[pairs])
+#                         errSeq, errSeqEuler, avgErr, avgErrEuler, looselyDataAngle, tightlyDataAngle = computeErrSegs(
+#                             [[dataLoad[0].getSegIdxByName(pairs), dataLoad[0].getSegIdxByName(segmentPairs[pairs])]], dataLoad[0],
+#                             dataLoad[1])
+#
+#                         if executeBlock == 3:
+#                             makeAngleFile(csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
+#                         # for values in errSeq[0]:
+#                         #     meanSquaredError += (values - avgErr) ** 2
+#                         # meanSquaredError = meanSquaredError / len(errSeq[0])
+#                         meanSquaredError = statistics.variance(errSeq[0])
+#                         standardDeviation = statistics.stdev(errSeq[0])
+#                         writer.writerow({'Subject': subject, 'Movement': movement, 'Segment1': pairs, 'Segment2': segmentPairs[pairs],
+#                                          'TotalAngleAvgError': avgErr[0], 'TotalEulerAvgError': avgErrEuler[0], 'MeanSquaredError': meanSquaredError, 'Standard Deviation': standardDeviation})
+#                         # print(errSeq, errSeqEuler, avgErr, avgErrEuler)
+#             # drawSkelQt(dataLoad, [[dataLoad[0].getSegIdxByName(segment)]])
+#             dataLoad = []
 
 # # todo : Uncomment the block below to create plots
 # counter = 1                                       # Counter to control when to create the plot using bokeh
@@ -345,6 +347,30 @@ with open(fileName, 'w') as outcsv:
 #     p.legend.click_policy = "hide"
 #     save(p)
 
+# Code to pre-process the data
+if executeBlock == 2:
+    with open(fileName, 'r') as incsv:
+        lines = list(incsv.read().split('\n'))[1:]
+
+movement = ''
+maxData = []
+jointTempList = []
+jointList = {}
+for line in lines:
+    mylist = line.split(',')
+    if mylist[0] == 'P1':
+        if mylist[1] != movement and movement != '':
+            maxValue = max(maxData)
+            for x in maxData:
+                if float(x) > 0.5 * float(maxValue):
+                    jointTempList.append(maxData.index(x))
+            maxData = []
+            # for i in range(len(maxData):
+            jointList[movement] = jointTempList
+            jointTempList = []
+        maxData.append(mylist[4])
+        movement = mylist[1]
+
 #Loosely coupled
 # subject = "P1"
 # scenario = "Loose"
@@ -377,14 +403,14 @@ with open(fileName, 'w') as outcsv:
 # Note also multiple errorplots are possible (just extend the list...)
 
 # # Executing one or more tasks
-# whatToDo = ['']
+# whatToDo = ['vis']
 #
 # #
 # if ('vis' in whatToDo):
 #     print('Visualize data...')
-#     # print(errSegs[0][0])
-#     list_Loader = [dataLoosely, dataTightly]
-#     drawSkelQt(list_Loader, errSegs)
+    # print(errSegs[0][0])
+    # list_Loader = [dataLoosely, dataTightly]
+    # drawSkelQt(list_Loader, errSegs)
 #
 # if ('eval' in whatToDo):
 #     print('Example error computation...')
