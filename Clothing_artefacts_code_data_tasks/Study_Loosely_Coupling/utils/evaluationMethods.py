@@ -1,4 +1,5 @@
 import numpy as np
+import statistics
 from pyquaternion import Quaternion
 # from utils.trafos import euler_from_quaternion
 from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.utils.trafos import euler_from_quaternion
@@ -51,6 +52,8 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
     errSeqEuler = []
     angleValueForDataLooselyArray = []
     angleValueForDataTightlyArray = []
+    angleValueForDataLooselyTempArray = []
+    angleValueForDataTightlyTempArray = []
     nTime = min(dataTightly.aData.nTime, dataLoosely.aData.nTime)
     for i in range(len(errSegs)):
         avgErr.append(0)
@@ -72,8 +75,13 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
                 qL_sg1 = Quaternion(dataLoosely.getQuatSegment(errSegs[i][1], t))
                 totalAngleErr = err.angleErrRel(qT_sg0, qT_sg1, qL_sg0, qL_sg1)
                 eulerAngles = err.angleErrEulerRel(qT_sg0, qT_sg1, qL_sg0, qL_sg1)
-                angleValueForDataTightlyArray.append(err.findAngle(qT_sg0, qT_sg1))
-                angleValueForDataLooselyArray.append(err.findAngle(qL_sg0, qL_sg1))
+                angleValueForDataTightlyTempArray.append(err.findAngle(qT_sg0, qT_sg1))
+                angleValueForDataLooselyTempArray.append(err.findAngle(qL_sg0, qL_sg1))
+                if t % 4 == 0 or t == nTime - 1:
+                    angleValueForDataTightlyArray.append(statistics.mean(angleValueForDataTightlyTempArray))
+                    angleValueForDataLooselyArray.append(statistics.mean(angleValueForDataLooselyTempArray))
+                    angleValueForDataTightlyTempArray = []
+                    angleValueForDataLooselyTempArray = []
 
             errSeq[-1][t] = totalAngleErr
             # print("Error in deg: " + str(totalAngleErr) + " at time: " + str(t))
