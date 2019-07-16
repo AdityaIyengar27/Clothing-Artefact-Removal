@@ -24,23 +24,23 @@ with open('AngleDataDownSampled.csv', 'r') as f:
 for line in lines:
     mylist = line.split(',')
     if mylist[0] == 'Loose Data':
-        for value in mylist[2:]:
-            if value not in inputCharacters:
-                inputCharacters.add(value)
+        # for value in mylist[2:]:
+        #     if value not in inputCharacters:
+        #         inputCharacters.add(value)
         # mylist.append('\n')
         inputData.append(mylist[2:])
 
     else:
-        for value in mylist[2:]:
-            if value not in targetCharacters:
-                targetCharacters.add(value)
+        # for value in mylist[2:]:
+        #     if value not in targetCharacters:
+        #         targetCharacters.add(value)
         # mylist.insert(2, '\t')
         # mylist.append('\n')
         targetData.append(mylist[2:])
 
 #partitioning the data to make training set
 for makeTrain in range(len(inputData)):
-  train_range = random.randint(0,517)
+  train_range = random.randint(0, 517)
   if((train_range not in hold_index) and (len(hold_index)<259)):
     hold_index.append(train_range)
     input_train_data.append(inputData[train_range])
@@ -49,14 +49,21 @@ for makeTrain in range(len(inputData)):
 
 # max_train_input_length= len(max(input_train_data,key=len))
 # max_train_target_legth = len(max(target_train_data,key=len))
+for value in input_train_data:
+    for innerValue in value:
+        if innerValue not in inputCharacters:
+            inputCharacters.add(innerValue)
+
+for value in target_train_data:
+    for innerValue in value:
+        if innerValue not in targetCharacters:
+            targetCharacters.add(innerValue)
 
 max_encoder_seq_length = max([len(txt) for txt in input_train_data])
 max_decoder_seq_length = max([len(txt) for txt in target_train_data])
 num_encoder_tokens = len(inputCharacters)
 num_decoder_tokens = len(targetCharacters)
 
-# print(max_train_input_length)
-print(num_encoder_tokens)
 print(num_encoder_tokens)
 print(num_decoder_tokens)
 input_token_index = dict(
