@@ -1,8 +1,9 @@
 import numpy as np
 import random
-import keras, tensorflow
+import keras, tensorflow as tf
 from keras.models import Model
 from keras.layers import Input, LSTM, Dense
+from keras import backend as k
 from keras import regularizers
 inputData = []
 targetData = []
@@ -11,6 +12,8 @@ targetCharacters = []
 input_train_data = []
 target_train_data = []
 
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+k.tensorflow_backend._get_available_gpus()
 
 #sanity testing as random number might generate the same number again and would be very bad for us!!
 hold_index = []
