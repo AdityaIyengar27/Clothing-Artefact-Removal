@@ -69,7 +69,10 @@ for value in input_train_data:
         #     inputCharacters.add(innerValue)
     # tempInputList = []
 inputCharacters = np.array(inputCharacters)
-inputCharacters = inputCharacters[:, :, np.newaxis]
+inputCharacters = inputCharacters.reshape(inputCharacters.shape[0], length, 1)
+# print(inputCharacters.ndim)
+# print(inputCharacters.size)
+# inputCharacters = inputCharacters[:, :, 1]
 print(inputCharacters.shape)
 # input_train_data = array
 for value in target_train_data:
@@ -82,7 +85,11 @@ for value in target_train_data:
         targetCharacters.append(tempOutputList)
 
 targetCharacters = np.array(targetCharacters)
-targetCharacters = targetCharacters[:, :, np.newaxis]
+targetCharacters = targetCharacters.reshape(targetCharacters.shape[0], length, 1)
+# print(targetCharacters.ndim)
+# print(targetCharacters.size)
+# targetCharacters = targetCharacters[:, :, np.newaxis]
+# targetCharacters = targetCharacters.reshape()
 print(targetCharacters.shape)
 
 # for i, (, target_train_data) in enumerate(zip(input_train_data, target_train_data)):
@@ -101,19 +108,23 @@ print(targetCharacters.shape)
 
 batch_size = 64  # batch size for training
 epochs = 100  # number of epochs to train for
-latent_dim = 256  # latent dimensionality of
+latent_dim = 128  # latent dimensionality of
 
-encoderInputs = Input(shape=inputCharacters.shape)
+encoderInputs = Input(shape=(length, 1))
+print(encoderInputs)
 encoderLSTM = LSTM(latent_dim, return_state=True)
 encoderOutputs, hiddenStates, CStates = encoderLSTM(encoderInputs)
 encoderStates = [hiddenStates, CStates]
+print(encoderStates)
 
-decoderInputs = Input(shape=targetCharacters.shape)
+decoderInputs = Input(shape=(length, 1))
+print(decoderInputs)
 decoderLSTM = LSTM(latent_dim, return_state=True, return_sequences=True)
 decoderOutputs, _, _ = decoderLSTM(decoderInputs, initial_state=encoderStates)
 
 model = Model(inputs=[encoderInputs, decoderInputs], outputs=decoderOutputs)
-model.compile(optimizer='Adam', kernel_regularizer=regularizers.l2(0.01))
+optimizer = keras.optimizers.Adam(lr=0.001, decay=0.0001)
+model.compile(optimizer=optimizer, loss='mean_squared_error')
 model.summary()
 
 model.fit([inputCharacters, targetCharacters], targetCharacters, batch_size=batch_size, epochs=epochs, validation_split=0.2)
