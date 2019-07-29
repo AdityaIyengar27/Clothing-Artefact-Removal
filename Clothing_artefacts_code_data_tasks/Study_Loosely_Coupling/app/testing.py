@@ -12,7 +12,7 @@ targetCharacters = []
 input_train_data = []
 target_train_data = []
 
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True))
 k.tensorflow_backend._get_available_gpus()
 
 #sanity testing as random number might generate the same number again and would be very bad for us!!
@@ -69,7 +69,9 @@ for value in input_train_data:
         #     inputCharacters.add(innerValue)
     # tempInputList = []
 inputCharacters = np.array(inputCharacters)
-inputCharacters = inputCharacters.reshape(inputCharacters.shape[0], length, 1)
+# inputCharacters = inputCharacters.reshape(inputCharacters.shape[0], length, 1)
+inputCharacters = inputCharacters.reshape(1, inputCharacters.shape[0], length)
+
 # print(inputCharacters.ndim)
 # print(inputCharacters.size)
 # inputCharacters = inputCharacters[:, :, 1]
@@ -85,7 +87,7 @@ for value in target_train_data:
         targetCharacters.append(tempOutputList)
 
 targetCharacters = np.array(targetCharacters)
-targetCharacters = targetCharacters.reshape(targetCharacters.shape[0], length, 1)
+targetCharacters = targetCharacters.reshape(1, targetCharacters.shape[0], length)
 # print(targetCharacters.ndim)
 # print(targetCharacters.size)
 # targetCharacters = targetCharacters[:, :, np.newaxis]
@@ -108,16 +110,16 @@ print(targetCharacters.shape)
 
 batch_size = 64  # batch size for training
 epochs = 100  # number of epochs to train for
-latent_dim = inputCharacters.shape[0] * inputCharacters.shape[1]  # latent dimensionality of
+latent_dim = inputCharacters.shape[2] # latent dimensionality of
 
-encoderInputs = Input(shape=(inputCharacters.shape[0], length))
+encoderInputs = Input(shape=(inputCharacters.shape[1], length))
 print(encoderInputs)
 encoderLSTM = LSTM(latent_dim, return_state=True)
 encoderOutputs, hiddenStates, CStates = encoderLSTM(encoderInputs)
 encoderStates = [hiddenStates, CStates]
 print(encoderStates)
 
-decoderInputs = Input(shape=(length, 1))
+decoderInputs = Input(shape=(targetCharacters.shape[1], length))
 print(decoderInputs)
 decoderLSTM = LSTM(latent_dim, return_state=True, return_sequences=True)
 decoderOutputs, _, _ = decoderLSTM(decoderInputs, initial_state=encoderStates)
@@ -127,7 +129,7 @@ optimizer = keras.optimizers.Adam(lr=0.001, decay=0.0001)
 model.compile(optimizer=optimizer, loss='mean_squared_error')
 model.summary()
 
-model.fit([inputCharacters, targetCharacters], targetCharacters, batch_size=batch_size, epochs=epochs, validation_split=0.2)
+model.fit([inputCharacters, targetCharacters], targetCharacters, batch_size=batch_size, epochs=epochs, validation_split=0.2, verbose=0)
 model.save('../Models/seq2seq.h5')
 
 # decoderDense = Dense(len(tar))
