@@ -86,15 +86,15 @@ print(targetCharacters.shape)
 # print(RepeatVector(2))
 batch_size = 64  # batch size for training
 epochs = 100  # number of epochs to train for
-latent_dim = 128  # latent dimensionality of
+latent_dim = inputCharacters.shape[2]  # latent dimensionality of
 
 # define model
 model = Sequential()
-model.add(LSTM(length, activation='relu', input_shape=(inputCharacters.shape[1], length)))
+model.add(LSTM(latent_dim, activation='relu', input_shape=(inputCharacters.shape[1], length)))
 print(model.layers[0].input_shape)
 print(model.layers[0].output_shape)
 model.add(RepeatVector(inputCharacters.shape[1]))
-model.add(LSTM(length, activation='relu', return_sequences=True))
+model.add(LSTM(latent_dim, activation='relu', return_sequences=True ))
 # model.add(Dense(1))
 print(model.layers[1].input_shape)
 print(model.layers[1].output_shape)

@@ -130,7 +130,7 @@ model.compile(optimizer=optimizer, loss='mean_squared_error')
 model.summary()
 
 model.fit([inputCharacters, targetCharacters], targetCharacters, batch_size=batch_size, epochs=epochs, validation_split=0.2, verbose=0)
-model.save('../Models/seq2seq.h5')
+model.save_weights('../Models/seq2seq.h5')
 
 # decoderDense = Dense(len(tar))
         # if innerValue not in targetCharacters:
