@@ -67,7 +67,7 @@ for value in input_train_data:
         #     inputCharacters.add(innerValue)
     # tempInputList = []
 inputCharacters = np.array(inputCharacters)
-inputCharacters = inputCharacters.reshape(1, inputCharacters.shape[0], length)
+inputCharacters = inputCharacters.reshape(inputCharacters.shape[0], length, 1)
 print(inputCharacters.shape)
 
 for value in target_train_data:
@@ -80,21 +80,25 @@ for value in target_train_data:
         targetCharacters.append(tempOutputList)
 
 targetCharacters = np.array(targetCharacters)
-targetCharacters = targetCharacters.reshape(1, targetCharacters.shape[0], length)
+targetCharacters = targetCharacters.reshape(targetCharacters.shape[0], length, 1)
 print(targetCharacters.shape)
+
 
 # print(RepeatVector(2))
 batch_size = 64  # batch size for training
 epochs = 100  # number of epochs to train for
-latent_dim = inputCharacters.shape[2]  # latent dimensionality of
+# latent_dim = 256
+latent_dim = inputCharacters.shape[1]  # latent dimensionality of
 
 # define model
+# activationfn = keras.layers.LeakyReLU(alpha=0.3)
 model = Sequential()
-model.add(LSTM(latent_dim, activation='relu', input_shape=(inputCharacters.shape[1], length)))
+model.add(LSTM(latent_dim, activation='tanh', input_shape=(length, 1)))
 print(model.layers[0].input_shape)
 print(model.layers[0].output_shape)
-model.add(RepeatVector(inputCharacters.shape[1]))
-model.add(LSTM(latent_dim, activation='relu', return_sequences=True ))
+model.add(RepeatVector(latent_dim))
+model.add(LSTM(latent_dim, activation='tanh', return_sequences=True))
+model.add(TimeDistributed(Dense(1)))
 # model.add(Dense(1))
 print(model.layers[1].input_shape)
 print(model.layers[1].output_shape)
@@ -110,5 +114,6 @@ optimizer = keras.optimizers.Adam(lr=0.001, decay=0.0001)
 model.compile(optimizer=optimizer, loss='mean_squared_error')
 model.summary()
 # fit model
-model.fit(inputCharacters, targetCharacters, verbose=0, batch_size=batch_size, epochs=epochs, validation_split=0.2)
+historyObject = model.fit(inputCharacters, targetCharacters, verbose=2, batch_size=batch_size, epochs=epochs)
+print(historyObject.history)
 model.save('../Models/seq2seq.h5')
