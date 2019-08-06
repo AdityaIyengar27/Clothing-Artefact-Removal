@@ -37,11 +37,12 @@ dataset = hstack((in_seq1, in_seq2, out_seq))
 n_steps_in, n_steps_out = 3, 2
 # covert into input/output
 X, y = split_sequences(dataset, n_steps_in, n_steps_out)
+print(X.shape)
+print(X)
+print(y.shape)
+print(y)
 # the dataset knows the number of features, e.g. 2
 n_features = X.shape[2]
-print(X)
-print(X.shape)
-print(n_features)
 # define model
 model = Sequential()
 model.add(LSTM(200, activation='relu', input_shape=(n_steps_in, n_features)))
@@ -52,7 +53,7 @@ model.compile(optimizer='adam', loss='mse')
 # fit model
 model.fit(X, y, epochs=300, verbose=0)
 # demonstrate prediction
-x_input = array([[60, 65, 125], [70, 75, 145], [80, 85, 165]])
-x_input = x_input.reshape((1, n_steps_in, n_features))
-yhat = model.predict(x_input, verbose=0)
-print(yhat)
+# x_input = array([[60, 65, 125], [70, 75, 145], [80, 85, 165]])
+# x_input = x_input.reshape((1, n_steps_in, n_features))
+# yhat = model.predict(x_input, verbose=0)
+# print(yhat)

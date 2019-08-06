@@ -32,7 +32,8 @@ for line in lines:
         #     if value not in inputCharacters:
         #         inputCharacters.add(value)
         # mylist.append('\n')
-        inputData.append(mylist[2:])
+        tempArray = np.asarray(mylist[2:]).flatten()
+        inputData.append(tempArray)
 
     else:
         # for value in mylist[2:]:
@@ -40,7 +41,8 @@ for line in lines:
         #         targetCharacters.add(value)
         # mylist.insert(2, '\t')
         # mylist.append('\n')
-        targetData.append(mylist[2:])
+        tempArray = np.asarray(mylist[2:]).flatten()
+        targetData.append(tempArray)
 
 #partitioning the data to make training set
 for makeTrain in range(len(inputData)):
@@ -55,11 +57,12 @@ zeroArray = np.zeros(3)
 for value in input_train_data:
     for i in range(0, len(value), length):
         # tempInputList = np.zeros(length)
-        tempInputList = value[i:i+length]
-        tempInputListLength = len(tempInputList)
-        while tempInputListLength < length:
-            tempInputList.insert(tempInputListLength, zeroArray)
-            tempInputListLength += 1
+        tempInputList = np.asarray(value[i:i+length])
+        # tempInputList = tempInputList
+        # tempInputListLength = len(tempInputList)
+        # while tempInputListLength < length:
+        #     tempInputList.insert(tempInputListLength, zeroArray)
+        #     tempInputListLength += 1
             # tempInputList[len(tempInputList):length-1] = 0
             # tempInputList.append(0)
         inputCharacters.append(tempInputList)
