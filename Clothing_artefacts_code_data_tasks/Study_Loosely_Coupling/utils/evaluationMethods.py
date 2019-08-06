@@ -3,6 +3,7 @@ import statistics
 from pyquaternion import Quaternion
 # from utils.trafos import euler_from_quaternion
 from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.utils.trafos import euler_from_quaternion
+from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.utils.trafos import quationion_to_MRP
 import matplotlib.pyplot as plt
 
 class Evaluation():
@@ -10,7 +11,7 @@ class Evaluation():
         self.ToDeg = 180 / np.pi
 
     def qRel(self, q1, q2):
-        return q1.inverse* q2
+        return q1.inverse*q2
 
     def scalarAngleErr(self, qRel):
         value = max(-1.0, min(qRel.elements[0], 1.0))
@@ -54,6 +55,8 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
     angleValueForDataTightlyArray = []
     angleValueForDataLooselyTempArray = []
     angleValueForDataTightlyTempArray = []
+    MRPLooseArray = []
+    MRPTightArray = []
     nTime = min(dataTightly.aData.nTime, dataLoosely.aData.nTime)
     for i in range(len(errSegs)):
         avgErr.append(0)
@@ -75,6 +78,14 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
                 qL_sg1 = Quaternion(dataLoosely.getQuatSegment(errSegs[i][1], t))
                 totalAngleErr = err.angleErrRel(qT_sg0, qT_sg1, qL_sg0, qL_sg1)
                 eulerAngles = err.angleErrEulerRel(qT_sg0, qT_sg1, qL_sg0, qL_sg1)
+                MRPTight = quationion_to_MRP(err.qRel(qT_sg0, qT_sg1))
+                MRPLoose = quationion_to_MRP(err.qRel(qL_sg0, qL_sg1))
+                MRPLooseArray.append(MRPLoose)
+                MRPTightArray.append(MRPTight)
+                # MRP1 = quationion_to_MRP(qT_sg0)
+                # MRP2 = quationion_to_MRP(qT_sg1)
+                # print(MRP1)
+                # print(MRP2)
                 angleValueForDataTightlyTempArray.append(err.findAngle(qT_sg0, qT_sg1))
                 angleValueForDataLooselyTempArray.append(err.findAngle(qL_sg0, qL_sg1))
                 if t % 4 == 0 or t == nTime - 1:
@@ -97,7 +108,7 @@ def computeErrSegs(errSegs, dataLoosely, dataTightly):
         # avgErrEuler[-1] /= nTime
         # print("Average total error: " + str(avgErr[-1]))
         # print("Average error per axis (x,y,z): " + str(avgErrEuler[-1]))
-    return errSeq, errSeqEuler, avgErr, avgErrEuler, angleValueForDataLooselyArray, angleValueForDataTightlyArray
+    return errSeq, errSeqEuler, avgErr, avgErrEuler, angleValueForDataLooselyArray, angleValueForDataTightlyArray, MRPLooseArray, MRPTightArray
 
 def plotErrSegs(loader, errSegs, errSegsSeq):
     rows = 1

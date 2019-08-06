@@ -85,8 +85,8 @@ print(targetCharacters.shape)
 
 
 # print(RepeatVector(2))
-batch_size = 64  # batch size for training
-epochs = 100  # number of epochs to train for
+batch_size = 32  # batch size for training
+epochs = 300  # number of epochs to train for
 # latent_dim = 256
 latent_dim = inputCharacters.shape[1]  # latent dimensionality of
 
