@@ -40,23 +40,21 @@ for line in lines:
         # for x in range(0, len(tempList)):
             # tempList.append(literal_eval(x))
         tempList = mylist[2:]
-        tempList = [re.sub(' +', ' ', i).strip("[]").strip("'").split(" ") for i in tempList]
-        # tempList = re.sub(' +', ' ', tempList)
-        tempList = list(itertools.chain(*tempList))
-        # for eachList in tempList:
-        #     eachList = eachList.remove("")
-
-
+        tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
+        tempList = list(filter(None, itertools.chain(*tempList)))
         inputData.append(tempList)
-
+        tempList = []
     else:
         # for value in mylist[2:]:
         #     if value not in targetCharacters:
         #         targetCharacters.add(value)
         # mylist.insert(2, '\t')
         # mylist.append('\n')
-        tempArray = np.asarray(mylist[2:]).flatten()
-        targetData.append(tempArray)
+        tempList = mylist[2:]
+        tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
+        tempList = list(filter(None, itertools.chain(*tempList)))
+        targetData.append(tempList)
+        tempList = []
 
 #partitioning the data to make training set
 for makeTrain in range(len(inputData)):
@@ -66,81 +64,46 @@ for makeTrain in range(len(inputData)):
         input_train_data.append(inputData[train_range])
         target_train_data.append(targetData[train_range])
 
-length = 400
+length = 300
+input_train_data = list(itertools.chain(*input_train_data))
+noOfZeros = (length * 3) - (len(input_train_data) % (length * 3))
+input_train_data = np.pad(input_train_data, (0, noOfZeros), 'constant')
+inputCharacters = input_train_data.reshape(int(input_train_data.size / 900), length, 3)
 
-for value in input_train_data:
-    for i in range(0, len(value), length):
-        tempInputList = value.tolist()
-        # tempInputList.
-        tempInputListLength = len(value)
-        noOfZeros = length - (len(value) % length) - 1
-        for j in range(0, noOfZeros):
-            tempInputList.append(0)
-            # tempInputListLength += 1
-        # tempInputList = np.zeros(length)
-        # tempInputList = np.asarray(value[i:i+length])
-        # tempInputList = tempInputList
-        # tempInputListLength = len(tempInputList)
-        # while tempInputListLength < length:
-        #     tempInputList.insert(tempInputListLength, zeroArray)
-        #     tempInputListLength += 1
-            # tempInputList[len(tempInputList):length-1] = 0
-            # tempInputList.append(0)
-        inputCharacters.append(tempInputList)
-        # print(np.array(inputCharacters).shape)
-        # if innerValue not in inputCharacters:
-        #     inputCharacters.add(innerValue)
-    # tempInputList = []
-inputCharacters = np.array(inputCharacters)
-inputCharacters = inputCharacters.reshape(inputCharacters.shape[0], length, 3)
-print(inputCharacters.shape)
+target_train_data = list(itertools.chain(*target_train_data))
+noOfZeros = (length * 3) - (len(target_train_data) % (length * 3))
+target_train_data = np.pad(target_train_data, (0, noOfZeros), 'constant')
+targetCharacters = target_train_data.reshape(int(target_train_data.size / 900), length, 3)
 
-for value in target_train_data:
-    for i in range(0, len(value), length):
-        tempOutputList = value.tolist()
-        tempOutputListLength = len(value)
-        noOfZeros = length - (len(value) % length) - 1
-        for j in range(0, noOfZeros):
-            tempOutputList.insert(tempOutputListLength, 0)
-            tempOutputListLength += 1
+batch_size = 64  # batch size for training
+epochs = 100  # number of epochs to train for
+# latent_dim = 256
+latent_dim = inputCharacters.shape[1]  # latent dimensionality of
 
-        targetCharacters.append(tempOutputList)
+# define model
+# activationfn = keras.layers.LeakyReLU(alpha=0.3)
+model = Sequential()
+model.add(LSTM(latent_dim, activation='tanh', input_shape=(length, 3)))
+print(model.layers[0].input_shape)
+print(model.layers[0].output_shape)
+model.add(RepeatVector(latent_dim))
+model.add(LSTM(latent_dim, activation='tanh', return_sequences=True))
+model.add(TimeDistributed(Dense(3)))
+# model.add(Dense(1))
+print(model.layers[1].input_shape)
+print(model.layers[1].output_shape)
+print(model.layers[2].input_shape)
+print(model.layers[2].output_shape)
 
-targetCharacters = np.array(targetCharacters)
-targetCharacters = targetCharacters.reshape(targetCharacters.shape[0], length, 3)
-print(targetCharacters.shape)
-#
-#
-# # print(RepeatVector(2))
-# batch_size = 64  # batch size for training
-# epochs = 100  # number of epochs to train for
-# # latent_dim = 256
-# latent_dim = inputCharacters.shape[1]  # latent dimensionality of
-#
-# # define model
-# # activationfn = keras.layers.LeakyReLU(alpha=0.3)
-# model = Sequential()
-# model.add(LSTM(latent_dim, activation='tanh', input_shape=(length, 3)))
-# print(model.layers[0].input_shape)
-# print(model.layers[0].output_shape)
-# model.add(RepeatVector(latent_dim))
-# model.add(LSTM(latent_dim, activation='tanh', return_sequences=True))
-# model.add(TimeDistributed(Dense(3)))
-# # model.add(Dense(1))
-# print(model.layers[1].input_shape)
-# print(model.layers[1].output_shape)
-# print(model.layers[2].input_shape)
-# print(model.layers[2].output_shape)
-#
-# # model.add(TimeDistributed(Dense(1)))
-# # model.add(LSTM(50, activation='relu', return_sequences=True, input_shape=(length, 1)))
-# # model.add(Dense(1))
-# # model.compile(optimizer='adam', loss='mse')
-# # model = Model(inputs=[encoderInputs, decoderInputs], outputs=decoderOutputs)
-# optimizer = keras.optimizers.Adam(lr=0.001, decay=0.0001)
-# model.compile(optimizer=optimizer, loss='mean_squared_error')
-# model.summary()
-# # fit model
-# historyObject = model.fit(inputCharacters, targetCharacters, verbose=2, batch_size=batch_size, epochs=epochs)
-# print(historyObject.history)
-# model.save('../Models/seq2seqMRP.h5')
+# model.add(TimeDistributed(Dense(1)))
+# model.add(LSTM(50, activation='relu', return_sequences=True, input_shape=(length, 1)))
+# model.add(Dense(1))
+# model.compile(optimizer='adam', loss='mse')
+# model = Model(inputs=[encoderInputs, decoderInputs], outputs=decoderOutputs)
+optimizer = keras.optimizers.Adam(lr=0.001, decay=0.0001)
+model.compile(optimizer=optimizer, loss='mean_squared_error')
+model.summary()
+# fit model
+historyObject = model.fit(inputCharacters, targetCharacters, verbose=2, batch_size=batch_size, epochs=epochs)
+print(historyObject.history)
+model.save('../Models/seq2seqMRP.h5')
