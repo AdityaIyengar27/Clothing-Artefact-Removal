@@ -5,8 +5,9 @@ import itertools
 import re
 from ast import literal_eval
 from keras.models import Model, Sequential
-from keras.layers import Input, LSTM, Dense, RepeatVector, TimeDistributed
+from keras.layers import Input, LSTM, Dense, RepeatVector, TimeDistributed, GRU
 from keras import backend as k
+from keras.regularizers import l2
 
 from keras import regularizers
 inputData = []
@@ -76,20 +77,20 @@ target_train_data = np.pad(target_train_data, (0, noOfZeros), 'constant')
 targetCharacters = target_train_data.reshape(int(target_train_data.size / 600), length, 3)
 
 batch_size = 64  # batch size for training
-epochs = 100  # number of epochs to train for
+epochs = 200  # number of epochs to train for
 # latent_dim = 256
 latent_dim = inputCharacters.shape[1]  # latent dimensionality of
 
 # define model
 # activationfn = keras.layers.LeakyReLU(alpha=0.3)
 model = Sequential()
-model.add(LSTM(latent_dim, activation='tanh', input_shape=(length, 3)))
+model.add(GRU(latent_dim, activation='relu', input_shape=(length, 3), kernel_regularizer=l2(0.0001)))
 print(model.layers[0].input_shape)
 print(model.layers[0].output_shape)
 model.add(RepeatVector(latent_dim))
-model.add(LSTM(latent_dim, activation='tanh'))
+model.add(GRU(latent_dim, activation='relu'))
 model.add(RepeatVector(latent_dim))
-model.add(LSTM(latent_dim, activation='tanh', return_sequences=True))
+model.add(GRU(latent_dim, activation='relu', return_sequences=True))
 model.add(TimeDistributed(Dense(3)))
 # model.add(Dense(1))
 print(model.layers[1].input_shape)
@@ -108,4 +109,4 @@ model.summary()
 # fit model
 historyObject = model.fit(inputCharacters, targetCharacters, verbose=2, batch_size=batch_size, epochs=epochs)
 print(historyObject.history)
-# model.save('../Models/seq2seqMRP.h5')
+model.save('../Models/seq2seqMRPWithRegularizerReluGRUBatch64.h5')
