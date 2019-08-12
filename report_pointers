@@ -1,0 +1,33 @@
+1. exploding gradients problem in lstms - done still unable to use ReLUs 
+
+2. try gradient clipping - done
+
+3. tried GRU but the prediction is not as good as lstms.
+
+4. abstract: discuss about the problem, how are we planning to address it?
+
+5. introduction: what are body sensor networks?, discuss the problem in detail, brief details of implementation
+
+6. Related work using seq2seq or otherwise.
+
+7. describe the seq2seq model, implementation and experiment details, comparitive study with the state of art models.
+
+8. conclusion, results and discussion: includes, future work scope, short comings of the current implementation, improvements.
+
+Important points to dicuss in experiment section:
+
+1. discuss the difference between using MRP angels and single euler angles,effect of gradient clipping and kernel regularization
+
+2. experiment results when using GRUs, lstms and different activation functions and the effect of depth of the network.
+
+3. the effect of the length of single data input (timesteps)
+
+4. the error plots between input, target and predicted value for every timestep, pick worst and best movement and plot the timesteps
+
+5. also plot the average error for the predicted vs mean squared error
+
+6. different models for different joints.
+
+7. random sampling of data , person division
+
+8. ensemble training
