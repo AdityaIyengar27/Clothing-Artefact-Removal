@@ -69,20 +69,25 @@ def determineJointPositionBetween2Segemnts(segment1, segment2):
 
 
 # Function to write angle for Loosely and Tightly Data
-def makeAngleFile(csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle):
+def makeAngleFile(subject, csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle):
     looselyDataAngle.insert(0, jointPosition)
     looselyDataAngle.insert(0, 'Loose Data')
+    looselyDataAngle.insert(0, subject)
     tightlyDataAngle.insert(0, jointPosition)
     tightlyDataAngle.insert(0, 'Tight Data')
+    tightlyDataAngle.insert(0, subject)
     csvWriter.writerow(looselyDataAngle)
     csvWriter.writerow(tightlyDataAngle)
 
 # def makeMRPFile()
-def makeMRPFile(csvWriter, jointPosition, MRPLooseData, MRPTightData):
+def makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData):
+    # flag = conditionalDataReduction()
     MRPLooseData.insert(0, jointPosition)
     MRPLooseData.insert(0, 'Loose MRP Data')
+    MRPLooseData.insert(0, subject)
     MRPTightData.insert(0, jointPosition)
-    MRPTightData.insert(0, 'Tight Data')
+    MRPTightData.insert(0, 'Tight MRP Data')
+    MRPTightData.insert(0, subject)
     csvWriter.writerow(MRPLooseData)
     csvWriter.writerow(MRPTightData)
 
@@ -108,12 +113,12 @@ elif executeBlock == 3:
 elif executeBlock == 4:
     fileName = 'AngleDataDownSampled.csv'
 elif executeBlock == 5:
-    fileName = 'MRPData.csv'
+    fileName = 'MRPDataWithSubject.csv'
 # If file exits, clear the content before writing
-# if Path(fileName).is_file():
-#     fileToTruncate = open(fileName, "w")
-#     fileToTruncate.truncate()
-#     fileToTruncate.close()
+if Path(fileName).is_file():
+    fileToTruncate = open(fileName, "w")
+    fileToTruncate.truncate()
+    fileToTruncate.close()
 
 # Fixed list of segment and segment pairs to find joint orientation errors
 segmentPairs = {'Head': 'T8', 'RightUpperArm': ['T8', 'RightForeArm'], 'LeftUpperArm': ['T8', 'LeftForeArm'], 'RightForeArm': 'RightHand', 'LeftForeArm': 'LeftHand', 'T8': 'Pelvis', 'Pelvis': ['RightUpperLeg', 'LeftUpperLeg'], 'RightUpperLeg': 'RightLowerLeg', 'LeftUpperLeg': 'LeftLowerLeg', 'RightLowerLeg': 'RightFoot', 'LeftLowerLeg': 'LeftFoot'}
@@ -180,9 +185,9 @@ with open(fileName, 'w') as outcsv:
                             #     meanSquaredError += (values - avgErr) ** 2
                             # meanSquaredError = meanSquaredError / len(errSeq[0])
                             if executeBlock == 3 or executeBlock == 4:
-                                makeAngleFile(csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
+                                makeAngleFile(subject, csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
                             if executeBlock == 5:
-                                makeMRPFile(csvWriter, jointPosition, MRPLooseData, MRPTightData)
+                                makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
                             meanSquaredError = statistics.variance(errSeq[0])
                             standardDeviation = statistics.stdev(errSeq[0])
                             # print(errSeq, errSeqEuler, avgErr, avgErrEuler)
@@ -198,9 +203,9 @@ with open(fileName, 'w') as outcsv:
                             dataLoad[1])
 
                         if executeBlock == 3 or executeBlock == 4:
-                            makeAngleFile(csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
+                            makeAngleFile(subject, csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
                         if executeBlock == 5:
-                            makeMRPFile(csvWriter, jointPosition, MRPLooseData, MRPTightData)
+                            makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
                         # for values in errSeq[0]:
                         #     meanSquaredError += (values - avgErr) ** 2
                         # meanSquaredError = meanSquaredError / len(errSeq[0])
