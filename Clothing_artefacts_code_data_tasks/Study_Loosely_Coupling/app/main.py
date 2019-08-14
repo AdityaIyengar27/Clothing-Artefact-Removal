@@ -9,7 +9,7 @@ import pandas as pd
 from bokeh import events
 from bokeh.models import CustomJS
 from bokeh.models.annotations import Title
-from bokeh.palettes import inferno
+# from bokeh.palettes import inferno
 from bokeh.plotting import figure, output_file, save
 
 # from loaddatasets.loaddata import loadDataLoosely
@@ -102,8 +102,25 @@ scenarioList = ["Loose", "Tight"]
 # Movement Numbers
 movementNrList = list((range(1, 20)))
 
+# Fixed list of segment and segment pairs to find joint orientation errors
+segmentPairs = {'Head': 'T8', 'RightUpperArm': ['T8', 'RightForeArm'], 'LeftUpperArm': ['T8', 'LeftForeArm'], 'RightForeArm': 'RightHand', 'LeftForeArm': 'LeftHand', 'T8': 'Pelvis', 'Pelvis': ['RightUpperLeg', 'LeftUpperLeg'], 'RightUpperLeg': 'RightLowerLeg', 'LeftUpperLeg': 'LeftLowerLeg', 'RightLowerLeg': 'RightFoot', 'LeftLowerLeg': 'LeftFoot'}
+segmentNameList = ['Pelvis', 'T8', 'Head', 'RightShoulder', 'RightUpperArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftUpperArm', 'LeftForeArm', 'LeftHand', 'RightUpperLeg', 'RightLowerLeg', 'RightFoot', 'LeftUpperLeg', 'LeftLowerLeg', 'LeftFoot']
+movementList = ['', 'N-Pose', 'Three Step Calibration Palm Front', 'Three Step Calibration N-Pose', 'X Sense Gait Calibration', 'Trunk Flexion Extension', 'Truck Rotation', 'Trunk Side Bending', 'Squats', 'Upper Arm Flexion Extension', 'Upper Arm Abduction Closed Sleeve', 'Upper Arm Abduction Open Sleeve', 'Upper Arm Rotation Open Sleeve', 'Shrugging Open Sleeve', 'Lover Arm Flexion Open Sleeve', 'Lower Arm Flexion Upper Arm Flexed 90 Degree Open Sleeve', 'Lower Arm Rotation Open Sleeve', 'Picking Up from Floor - Putting to Shelf Open Sleeve', 'Picking Up from Floor - Walking - Putting Down Open Sleeve', 'Screwing Light Bulb Open Sleeve']
+jointListMapping = {0: 'Neck', 1: 'Glenohumeral Right Joint', 3: 'Glenohumeral Left Joint', 2: 'Right Elbow', 4: 'Left Elbow', 5: 'Right Wrist', 6: 'Left Wrist', 7: 'T8 - Pelvis', 8: 'Right Hip', 9: 'Left Hip',10: 'Right Knee',11: 'Left Knee',12: 'Right Ankle',13: 'Left Ankle'}
+
+def thresholdjointOrientationAngle(data):
+    maxValue = max(data)
+    for x in data:
+        if float(x) > 0.5 * float(maxValue):
+            # joint = determineJointPositionBetween2Segemnts(mylist[2], mylist[3])
+            jointTempList.append(jointListMapping.get(data.index(x)))
+    return jointTempList
+
+jointListP1 = {}
+jointListP2 = {}
+
 # Flag to decide calculation of joint orientation error or segment error
-executeBlock = 5
+executeBlock = 6
 if executeBlock == 2:
     fileName = 'JointOrientationError.csv'
 elif executeBlock == 1:
@@ -114,17 +131,48 @@ elif executeBlock == 4:
     fileName = 'AngleDataDownSampled.csv'
 elif executeBlock == 5:
     fileName = 'MRPDataWithSubject.csv'
+elif executeBlock == 6:
+    # Code to pre-process the data
+    # if executeBlock == 2:
+    fileName = 'RelevantMRPDataWithSubject.csv'
+    with open('JointOrientationError.csv', 'r') as incsv:
+        lines = list(incsv.read().split('\n'))[1:]
+
+    movement = ''
+    maxData = []
+    jointTempList = []
+    mylist = []
+    for line in lines:
+        if (lines.index(line) != len(lines) - 1):
+            mylist = line.split(',')
+            if mylist == '' or (mylist[1] != movement and movement != ''):
+                jointTempList = thresholdjointOrientationAngle(maxData)
+                # for i in range(len(maxData):
+                if(person == 'P1'):
+                    jointListP1[movement] = jointTempList
+                elif(person == 'P2'):
+                    jointListP2[movement] = jointTempList
+                jointTempList = []
+                maxData = []
+            maxData.append(mylist[4])
+            person = mylist[0]
+            movement = mylist[1]
+        else:
+            jointTempList = thresholdjointOrientationAngle(maxData)
+            # for i in range(len(maxData):
+            if (person == 'P1'):
+                jointListP1[movement] = jointTempList
+            elif (person == 'P2'):
+                jointListP2[movement] = jointTempList
+            jointTempList = []
+            maxData = []
 # If file exits, clear the content before writing
 if Path(fileName).is_file():
     fileToTruncate = open(fileName, "w")
     fileToTruncate.truncate()
     fileToTruncate.close()
 
-# Fixed list of segment and segment pairs to find joint orientation errors
-segmentPairs = {'Head': 'T8', 'RightUpperArm': ['T8', 'RightForeArm'], 'LeftUpperArm': ['T8', 'LeftForeArm'], 'RightForeArm': 'RightHand', 'LeftForeArm': 'LeftHand', 'T8': 'Pelvis', 'Pelvis': ['RightUpperLeg', 'LeftUpperLeg'], 'RightUpperLeg': 'RightLowerLeg', 'LeftUpperLeg': 'LeftLowerLeg', 'RightLowerLeg': 'RightFoot', 'LeftLowerLeg': 'LeftFoot'}
-segmentNameList = ['Pelvis', 'T8', 'Head', 'RightShoulder', 'RightUpperArm', 'RightForeArm', 'RightHand', 'LeftShoulder', 'LeftUpperArm', 'LeftForeArm', 'LeftHand', 'RightUpperLeg', 'RightLowerLeg', 'RightFoot', 'LeftUpperLeg', 'LeftLowerLeg', 'LeftFoot']
-movementList = ['', 'N-Pose', 'Three Step Calibration Palm Front', 'Three Step Calibration N-Pose', 'X Sense Gait Calibration', 'Trunk Flexion Extension', 'Truck Rotation', 'Trunk Side Bending', 'Squats', 'Upper Arm Flexion Extension', 'Upper Arm Abduction Closed Sleeve', 'Upper Arm Abduction Open Sleeve', 'Upper Arm Rotation Open Sleeve', 'Shrugging Open Sleeve', 'Lover Arm Flexion Open Sleeve', 'Lower Arm Flexion Upper Arm Flexed 90 Degree Open Sleeve', 'Lower Arm Rotation Open Sleeve', 'Picking Up from Floor - Putting to Shelf Open Sleeve', 'Picking Up from Floor - Walking - Putting Down Open Sleeve', 'Screwing Light Bulb Open Sleeve']
-# csvWriter = {}
+csvWriter = {}
 # Write the relevent infomation to the file
 with open(fileName, 'w') as outcsv:
     fieldnames = []
@@ -138,7 +186,7 @@ with open(fileName, 'w') as outcsv:
         fieldnames = ["Subject", "Movement", "Segment1", "Segment2", "TotalAngleAvgError", "TotalEulerAvgError", "MeanSquaredError", "Standard Deviation"]
         writer = csv.DictWriter(outcsv, fieldnames=fieldnames)
         writer.writeheader()  # Write the header into the file
-    elif executeBlock == 3 or executeBlock == 4 or executeBlock == 5:
+    elif executeBlock == 3 or executeBlock == 4 or executeBlock == 5 or executeBlock == 6:
         # Write into 'AngleData.csv'
         csvWriter = csv.writer(outcsv, dialect='excel')
         # print()
@@ -171,7 +219,7 @@ with open(fileName, 'w') as outcsv:
                     # print("Mean Error: ", meanSquaredError)
                     # writer.writerow({subject, movement, segment, avgErr, avgErrEuler})
                     # writer.writerow({'Subject': subject, 'Movement': movement, 'Segment': segment, 'TotalAngleAvgError': avgErr[0], 'TotalEulerAvgError': avgErrEuler[0], 'MeanSquaredError': meanSquaredError, 'Standard Deviation': standardDeviation})
-            elif executeBlock == 2 or executeBlock == 3 or executeBlock == 4 or executeBlock == 5:
+            elif executeBlock == 2 or executeBlock == 3 or executeBlock == 4 or executeBlock == 5 or executeBlock == 6:
                 # Calculation of joint orientation error
                 for pairs in segmentPairs:
                     if isinstance(segmentPairs[pairs], list):
@@ -188,6 +236,13 @@ with open(fileName, 'w') as outcsv:
                                 makeAngleFile(subject, csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
                             if executeBlock == 5:
                                 makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
+                            if executeBlock == 6:
+                                if subject == 'P1':
+                                    relevantJoints = jointListP1.get(str(movement))
+                                elif subject == 'P2':
+                                    relevantJoints = jointListP2.get(str(movement))
+                                if jointPosition in relevantJoints:
+                                    makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
                             meanSquaredError = statistics.variance(errSeq[0])
                             standardDeviation = statistics.stdev(errSeq[0])
                             # print(errSeq, errSeqEuler, avgErr, avgErrEuler)
@@ -206,6 +261,13 @@ with open(fileName, 'w') as outcsv:
                             makeAngleFile(subject, csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
                         if executeBlock == 5:
                             makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
+                        if executeBlock == 6:
+                            if subject == 'P1':
+                                relevantJoints = jointListP1.get(str(movement))
+                            elif subject == 'P2':
+                                relevantJoints = jointListP2.get(str(movement))
+                            if jointPosition in relevantJoints:
+                                makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
                         # for values in errSeq[0]:
                         #     meanSquaredError += (values - avgErr) ** 2
                         # meanSquaredError = meanSquaredError / len(errSeq[0])
@@ -216,7 +278,7 @@ with open(fileName, 'w') as outcsv:
                         # print(errSeq, errSeqEuler, avgErr, avgErrEuler)
             # drawSkelQt(dataLoad, [[dataLoad[0].getSegIdxByName(segment)]])
             dataLoad = []
-
+#
 # # todo : Uncomment the block below to create plots
 # counter = 1                                       # Counter to control when to create the plot using bokeh
 # meanSquaredErrorArrayForPlot = []                 # Array to hold all mean squared error for a particular movement
@@ -368,30 +430,7 @@ with open(fileName, 'w') as outcsv:
 #     p.legend.click_policy = "hide"
 #     save(p)
 
-# # Code to pre-process the data
-# if executeBlock == 2:
-#     with open(fileName, 'r') as incsv:
-#         lines = list(incsv.read().split('\n'))[1:]
-#
-# movement = ''
-# maxData = []
-# jointTempList = []
-# jointList = {}
-# for line in lines:
-#     mylist = line.split(',')
-#     if mylist[0] == 'P1':
-#         if mylist[1] != movement and movement != '':
-#             maxValue = max(maxData)
-#             for x in maxData:
-#                 if float(x) > 0.5 * float(maxValue):
-#                     jointTempList.append(maxData.index(x))
-#             maxData = []
-#             # for i in range(len(maxData):
-#             jointList[movement] = jointTempList
-#             jointTempList = []
-#         maxData.append(mylist[4])
-#         movement = mylist[1]
-
+# lines = []
 #Loosely coupled
 # subject = "P1"
 # scenario = "Loose"

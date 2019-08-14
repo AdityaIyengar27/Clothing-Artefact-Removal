@@ -25,7 +25,7 @@ hold_index = []
 hold_test_index = []
 hold_val_index = []
 
-with open('MRPDataWithSubject.csv', 'r') as f:
+with open('RelevantMRPDataWithSubject.csv', 'r') as f:
     lines = list(f.read().split('\n'))
     # data.append(lines)
 
@@ -122,4 +122,4 @@ model.summary()
 # fit model
 historyObject = model.fit(inputCharacters, targetCharacters, verbose=2, batch_size=batch_size, epochs=epochs)
 print(historyObject.history)
-model.save('../Models/seq2seqMRPWithGRURegularizerrelu12_08_08.h5')
+model.save('../Models/seq2seqRelevantMRPWithGRURegularizerrelu14_08_21.h5')
