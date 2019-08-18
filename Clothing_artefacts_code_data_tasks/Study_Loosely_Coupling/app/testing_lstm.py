@@ -1,4 +1,5 @@
 from keras.models import load_model
+from pyquaternion import Quaternion
 
 import numpy as np
 import random
@@ -22,6 +23,11 @@ input_test_data = []
 target_test_data = []
 targ = []
 pred = []
+time_stamp_count = []
+redundant_time_stamp = []
+angleErr = 0
+errList = []
+
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 k.tensorflow_backend._get_available_gpus()
@@ -65,7 +71,9 @@ for line in lines:
             # mylist.append('\n')
             tempList = mylist[3:]
             print(len(tempList),mylist[2])
-            print(tempList)
+            if(len(tempList) not in time_stamp_count):
+                time_stamp_count.append(len(tempList))
+            redundant_time_stamp.append(len(tempList))
             target_quat = tempList
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
             tempList = list(filter(None, itertools.chain(*tempList)))
@@ -117,35 +125,75 @@ score,mean,acc = model.evaluate(targetCharacters,predict,batch_size = 64,verbose
 print('Test score:', score)
 print('Test accuracy:', acc)
 print('Test Error: ',  mean)
-predict_data = list(itertools.chain(*predict))
-#predict_data = list(itertools.chain(*predict_data))
-predict_quat = predict_data[0:699]
-#t = np.asarray(target_quat)
-t = [float(i) for i in target_quat]
-print(type(t))
-t = np.asarray(t)
-print(t.dtype)
-a = MRP_to_quaternion(t)
-b = MRP_to_quaternion(predict_quat)
-c = eval.angleErrEuler(a,b)
-print(c)
-
-# for i in range(0,targetCharacters.shape[0]):
-#     for j in range(0,length):
-#         predict_quat.append(MRP_to_quaternion(predict[i][j]))
+# predict_data = list(itertools.chain(*predict))
+# #predict_data = list(itertools.chain(*predict_data))
+# predict_quat = predict_data[0:699]
+# #t = np.asarray(target_quat)
+# #print((target_quat))
+# #t = [float(i) for i in target_quat]
+# #target_quat = [float(i) for i in target_quat]
+# # print(target_quat)
+# t = []
+# for item in target_quat:
+#     t.append(float(item))
 #
-#            # print("predict ", predict[i][j])
-#            # print("inside ",(targetCharacters[i][j]).astype(float))
-#         target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
-#         #print((predict[i][j]))
-#     pred.append(predict_quat)
-#     targ.append(target_quat)
-#     predict_quat = []
-#     target_quat = []
+# print(t)
+# #t = list(map(float,target_quat))
+# # print(t)
+# # t = np.fromiter(t, dtype=np.float)
+# # #t = float(target_quat[0])
+# # print(type(t))
+# #t = np.asarray(t)
+# #print(t.dtype)
+# a = MRP_to_quaternion(t)
+# b = MRP_to_quaternion(predict_quat)
+# c = eval.angleErrEuler(a,b)
+# print(c)
+
+for i in range(0,targetCharacters.shape[0]):
+    for j in range(0,length):
+        predict_quat.append(MRP_to_quaternion(predict[i][j]))
+        h = Quaternion(MRP_to_quaternion(predict[i][j]))
+
+           # print("predict ", predict[i][j])
+           # print("inside ",(targetCharacters[i][j]).astype(float))
+
+        target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+        o = Quaternion(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+
+        angleErr += eval.angleErrEuler(eval,q1 = h,q2 = o)
+        #print("error ", eval.angleErr(eval,q1 = h,q2 = o))
+        #print((predict[i][j]))
+    errList.append(angleErr/length)
+    pred.append(predict_quat)
+    targ.append(target_quat)
+    predict_quat = []
+    target_quat = []
+
+
+
+print(errList)
+# print(len(pred))
+# print(time_stamp_count)
+# print("size of padding ", noOfZeros)
+# #noOfZeros = 400
+# if(noOfZeros % 200 == 0):
+#     rows_to_delete = int(noOfZeros/200)
+#     del pred[-rows_to_delete:]
+#     del targ[-rows_to_delete:]
+# else:
+#     reduant_rows = noOfZeros % 200
+#     noOfZeros = noOfZeros - reduant_rows
+#     rows_to_delete = int(noOfZeros / 200)
+#     del pred[-rows_to_delete:]
+#     del targ[-rows_to_delete:]
+#
+#
 # print(len(pred))
 # print(len(targ))
-# flattened_list = [y for x in pred for y in x]
-# print(len(flattened_list[0]))
+# print(redundant_time_stamp)
+#flattened_list = list(itertools.chain(*pred))
+#print(len(flattened_list))
 # for k in range(0,len(pred)):
 #     for m in range(0,len(pred[k])):
 #     #a = 0
