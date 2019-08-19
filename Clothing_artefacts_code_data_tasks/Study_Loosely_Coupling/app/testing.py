@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import keras, tensorflow as tf
+from statistics import mean
 import itertools
 import re
 from ast import literal_eval
@@ -29,6 +30,8 @@ with open('RelevantMRPDataWithSubject.csv', 'r') as f:
     lines = list(f.read().split('\n'))
     # data.append(lines)
 
+length = 200
+
 for line in lines:
     if not line:
         continue
@@ -44,8 +47,14 @@ for line in lines:
             # for x in range(0, len(tempList)):
                 # tempList.append(literal_eval(x))
             tempList = mylist[3:]
+            # print(len(tempList))
+            # print(tempList)
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
             tempList = list(filter(None, itertools.chain(*tempList)))
+            tempList = [float(i) for i in tempList]
+            paddingValues = mean(tempList)
+            noOfPaddingValues = (length * 3) - (len(tempList) % (length * 3))
+            tempList = np.pad(tempList, (0, noOfPaddingValues), 'constant', constant_values=paddingValues)
             inputData.append(tempList)
             tempList = []
         else:
@@ -55,8 +64,14 @@ for line in lines:
             # mylist.insert(2, '\t')
             # mylist.append('\n')
             tempList = mylist[3:]
+            # print(len(tempList))
+            # print(tempList)
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
             tempList = list(filter(None, itertools.chain(*tempList)))
+            tempList = [float(i) for i in tempList]
+            paddingValues = mean(tempList)
+            noOfPaddingValues = (length * 3) - (len(tempList) % (length * 3))
+            tempList = np.pad(tempList, (0, noOfPaddingValues), 'constant', constant_values=paddingValues)
             targetData.append(tempList)
             tempList = []
 
@@ -75,15 +90,17 @@ for line in lines:
     #     target_train_data.append(targetData[train_range])
 # print(inputData[0])
 # print(targetData[0])
-length = 200
-input_train_data = list(itertools.chain(*inputData))
-noOfZeros = (length * 3) - (len(input_train_data) % (length * 3))
-input_train_data = np.pad(input_train_data, (0, noOfZeros), 'constant')
+
+# print(inputData[0])
+input_train_data = np.asarray(list(itertools.chain(*inputData)))
+print(input_train_data.shape)
+# noOfZeros = (length * 3) - (len(input_train_data) % (length * 3))
+# input_train_data = np.pad(input_train_data, (0, noOfZeros), 'constant')
 inputCharacters = input_train_data.reshape(int(input_train_data.size / 600), length, 3)
 
-target_train_data = list(itertools.chain(*targetData))
-noOfZeros = (length * 3) - (len(target_train_data) % (length * 3))
-target_train_data = np.pad(target_train_data, (0, noOfZeros), 'constant')
+target_train_data = np.asarray(list(itertools.chain(*targetData)))
+# noOfZeros = (length * 3) - (len(target_train_data) % (length * 3))
+# target_train_data = np.pad(target_train_data, (0, noOfZeros), 'constant')
 targetCharacters = target_train_data.reshape(int(target_train_data.size / 600), length, 3)
 
 # print(inputCharacters.shape)
@@ -122,4 +139,4 @@ model.summary()
 # fit model
 historyObject = model.fit(inputCharacters, targetCharacters, verbose=2, batch_size=batch_size, epochs=epochs)
 print(historyObject.history)
-model.save('../Models/seq2seqRelevantMRPWithLSTMRegularizertanh15_09_11.h5')
+model.save('../Models/seq2seqRelevantMRPWithLSTMRegularizertanh19_09_19.h5')

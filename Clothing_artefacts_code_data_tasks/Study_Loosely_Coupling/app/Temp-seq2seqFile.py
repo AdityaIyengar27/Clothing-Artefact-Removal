@@ -4,6 +4,8 @@ import keras, tensorflow as tf
 from keras.models import Model
 from keras.layers import Input, LSTM, Dense
 from keras import backend as k
+import itertools
+
 from keras import regularizers
 inputData = []
 targetData = []
@@ -20,104 +22,90 @@ hold_index = []
 hold_test_index = []
 hold_val_index = []
 
-with open('AngleDataDownSampled.csv', 'r') as f:
+with open('RelevantMRPDataWithSubject.csv', 'r') as f:
     lines = list(f.read().split('\n'))
     # data.append(lines)
 
-for line in lines:
-    mylist = line.split(',')
-    if mylist[0] == 'Loose Data':
-        # for value in mylist[2:]:
-        #     if value not in inputCharacters:
-        #         inputCharacters.add(value)
-        # mylist.append('\n')
-        inputData.append(mylist[2:])
-
-    else:
-        # for value in mylist[2:]:
-        #     if value not in targetCharacters:
-        #         targetCharacters.add(value)
-        # mylist.insert(2, '\t')
-        # mylist.append('\n')
-        targetData.append(mylist[2:])
-
-#partitioning the data to make training set
-for makeTrain in range(len(inputData)):
-    train_range = random.randint(0, 517)
-    if(train_range not in hold_index) and (len(hold_index) <= len(inputData)/2):
-        hold_index.append(train_range)
-        input_train_data.append(inputData[train_range])
-        target_train_data.append(targetData[train_range])
-
-
-# max_train_input_length= len(max(input_train_data,key=len))
-# max_train_target_legth = len(max(target_train_data,key=len))
-length = 400
-for value in input_train_data:
-    for i in range(0, len(value), length):
-        # tempInputList = np.zeros(length)
-        tempInputList = value[i:i+length]
-        tempInputListLength = len(tempInputList)
-        while tempInputListLength < length:
-            tempInputList.insert(tempInputListLength, 0)
-            tempInputListLength += 1
-            # tempInputList[len(tempInputList):length-1] = 0
-            # tempInputList.append(0)
-        inputCharacters.append(tempInputList)
-        # print(np.array(inputCharacters).shape)
-        # if innerValue not in inputCharacters:
-        #     inputCharacters.add(innerValue)
-    # tempInputList = []
-inputCharacters = np.array(inputCharacters)
-inputCharacters = inputCharacters.reshape(inputCharacters.shape[0], length, 1)
-# print(inputCharacters.ndim)
-# print(inputCharacters.size)
-# inputCharacters = inputCharacters[:, :, 1]
-print(inputCharacters.shape)
-# input_train_data = array
-for value in target_train_data:
-    for i in range(0, len(value), length):
-        tempOutputList = value[i:i+length]
-        tempOutputListLength = len(tempOutputList)
-        while tempOutputListLength < length:
-            tempOutputList.insert(tempOutputListLength, 0)
-            tempOutputListLength += 1
-        targetCharacters.append(tempOutputList)
-
-targetCharacters = np.array(targetCharacters)
-targetCharacters = targetCharacters.reshape(targetCharacters.shape[0], length, 1)
-# print(targetCharacters.ndim)
-# print(targetCharacters.size)
-# targetCharacters = targetCharacters[:, :, np.newaxis]
-# targetCharacters = targetCharacters.reshape()
-print(targetCharacters.shape)
-
-# for i, (, target_train_data) in enumerate(zip(input_train_data, target_train_data)):
-#     for t, char in enumerate(input_train_data):
-#         encoder_input_data[i, t, input_token_index[char]] = 1
-#     for t, char in enumerate(target_train_data):
-#     #     decoder_target_data is ahead of decoder_input_data by one timestep
-#         decoder_input_data[i, t, target_token_index[char]] = 1
-#         if t > 0:
-#         #decoder_target_data will be ahead by one timestep
-#         # and will not include the start character.
-#             decoder_target_data[i, t - 1, target_token_index[char]] = 1
+# for line in lines:
+#     mylist = line.split(',')
+#     if mylist[0] == 'Loose Data':
+#         # for value in mylist[2:]:
+#         #     if value not in inputCharacters:
+#         #         inputCharacters.add(value)
+#         # mylist.append('\n')
+#         inputData.append(mylist[2:])
 #
-# print(encoder_input_data[2].shape)
-# print(decoder_target_data[2].shape)
+#     else:
+#         # for value in mylist[2:]:
+#         #     if value not in targetCharacters:
+#         #         targetCharacters.add(value)
+#         # mylist.insert(2, '\t')
+#         # mylist.append('\n')
+#         targetData.append(mylist[2:])
+#
+# #partitioning the data to make training set
+# for makeTrain in range(len(inputData)):
+#     train_range = random.randint(0, 517)
+#     if(train_range not in hold_index) and (len(hold_index) <= len(inputData)/2):
+#         hold_index.append(train_range)
+#         input_train_data.append(inputData[train_range])
+#         target_train_data.append(targetData[train_range])
+
+for line in lines:
+    if not line:
+        continue
+    mylist = line.split(',')
+    if mylist[0] == 'P1':
+        if mylist[1] == 'Loose MRP Data':
+            # for value in mylist[2:]:
+            #     print()
+            #     if value not in inputCharacters:
+            #         inputCharacters.add(value)
+            # mylist.append('\n')
+            # tempList = mylist[2:]
+            # for x in range(0, len(tempList)):
+                # tempList.append(literal_eval(x))
+            tempList = mylist[3:]
+            tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
+            tempList = list(filter(None, itertools.chain(*tempList)))
+            inputData.append(tempList)
+            tempList = []
+        else:
+            # for value in mylist[2:]:
+            #     if value not in targetCharacters:
+            #         targetCharacters.add(value)
+            # mylist.insert(2, '\t')
+            # mylist.append('\n')
+            tempList = mylist[3:]
+            tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
+            tempList = list(filter(None, itertools.chain(*tempList)))
+            targetData.append(tempList)
+            tempList = []
+
+length = 200
+input_train_data = list(itertools.chain(*inputData))
+noOfZeros = (length * 3) - (len(input_train_data) % (length * 3))
+input_train_data = np.pad(input_train_data, (0, noOfZeros), 'constant')
+inputCharacters = input_train_data.reshape(int(input_train_data.size / 600), length, 3)
+
+target_train_data = list(itertools.chain(*targetData))
+noOfZeros = (length * 3) - (len(target_train_data) % (length * 3))
+target_train_data = np.pad(target_train_data, (0, noOfZeros), 'constant')
+targetCharacters = target_train_data.reshape(int(target_train_data.size / 600), length, 3)
 
 batch_size = 64  # batch size for training
-epochs = 100  # number of epochs to train for
-latent_dim = 128  # latent dimensionality of
+epochs = 200  # number of epochs to train for
+# latent_dim = 256
+latent_dim = inputCharacters.shape[1]  # latent dimensionality of
 
-encoderInputs = Input(shape=(length, 1))
+encoderInputs = Input(shape=(length, 3))
 print(encoderInputs)
 encoderLSTM = LSTM(latent_dim, return_state=True)
 encoderOutputs, hiddenStates, CStates = encoderLSTM(encoderInputs)
 encoderStates = [hiddenStates, CStates]
 print(encoderStates)
 
-decoderInputs = Input(shape=(length, 1))
+decoderInputs = Input(shape=(length, 3))
 print(decoderInputs)
 decoderLSTM = LSTM(latent_dim, return_state=True, return_sequences=True)
 decoderOutputs, _, _ = decoderLSTM(decoderInputs, initial_state=encoderStates)
@@ -126,9 +114,97 @@ model = Model(inputs=[encoderInputs, decoderInputs], outputs=decoderOutputs)
 optimizer = keras.optimizers.Adam(lr=0.001, decay=0.0001)
 model.compile(optimizer=optimizer, loss='mean_squared_error')
 model.summary()
+historyObject = model.fit(inputCharacters, targetCharacters, verbose=2, batch_size=batch_size, epochs=epochs, validation_split=0.2)
+print(historyObject.history)
+model.save('../Models/seq2seqENCODERDECODERMODEL18_08_11.h5')
 
-model.fit([inputCharacters, targetCharacters], targetCharacters, batch_size=batch_size, epochs=epochs, validation_split=0.2)
-model.save('../Models/seq2seq.h5')
+
+# model.fit([inputCharacters, targetCharacters], targetCharacters, batch_size=batch_size, epochs=epochs, validation_split=0.2)
+# model.save('../Models/seq2seq.h5')
+
+
+
+
+
+# # max_train_input_length= len(max(input_train_data,key=len))
+# # max_train_target_legth = len(max(target_train_data,key=len))
+# length = 400
+# for value in input_train_data:
+#     for i in range(0, len(value), length):
+#         # tempInputList = np.zeros(length)
+#         tempInputList = value[i:i+length]
+#         tempInputListLength = len(tempInputList)
+#         while tempInputListLength < length:
+#             tempInputList.insert(tempInputListLength, 0)
+#             tempInputListLength += 1
+#             # tempInputList[len(tempInputList):length-1] = 0
+#             # tempInputList.append(0)
+#         inputCharacters.append(tempInputList)
+#         # print(np.array(inputCharacters).shape)
+#         # if innerValue not in inputCharacters:
+#         #     inputCharacters.add(innerValue)
+#     # tempInputList = []
+# inputCharacters = np.array(inputCharacters)
+# inputCharacters = inputCharacters.reshape(inputCharacters.shape[0], length, 1)
+# # print(inputCharacters.ndim)
+# # print(inputCharacters.size)
+# # inputCharacters = inputCharacters[:, :, 1]
+# print(inputCharacters.shape)
+# # input_train_data = array
+# for value in target_train_data:
+#     for i in range(0, len(value), length):
+#         tempOutputList = value[i:i+length]
+#         tempOutputListLength = len(tempOutputList)
+#         while tempOutputListLength < length:
+#             tempOutputList.insert(tempOutputListLength, 0)
+#             tempOutputListLength += 1
+#         targetCharacters.append(tempOutputList)
+#
+# targetCharacters = np.array(targetCharacters)
+# targetCharacters = targetCharacters.reshape(targetCharacters.shape[0], length, 1)
+# # print(targetCharacters.ndim)
+# # print(targetCharacters.size)
+# # targetCharacters = targetCharacters[:, :, np.newaxis]
+# # targetCharacters = targetCharacters.reshape()
+# print(targetCharacters.shape)
+#
+# # for i, (, target_train_data) in enumerate(zip(input_train_data, target_train_data)):
+# #     for t, char in enumerate(input_train_data):
+# #         encoder_input_data[i, t, input_token_index[char]] = 1
+# #     for t, char in enumerate(target_train_data):
+# #     #     decoder_target_data is ahead of decoder_input_data by one timestep
+# #         decoder_input_data[i, t, target_token_index[char]] = 1
+# #         if t > 0:
+# #         #decoder_target_data will be ahead by one timestep
+# #         # and will not include the start character.
+# #             decoder_target_data[i, t - 1, target_token_index[char]] = 1
+# #
+# # print(encoder_input_data[2].shape)
+# # print(decoder_target_data[2].shape)
+#
+# batch_size = 64  # batch size for training
+# epochs = 100  # number of epochs to train for
+# latent_dim = 128  # latent dimensionality of
+#
+# encoderInputs = Input(shape=(length, 1))
+# print(encoderInputs)
+# encoderLSTM = LSTM(latent_dim, return_state=True)
+# encoderOutputs, hiddenStates, CStates = encoderLSTM(encoderInputs)
+# encoderStates = [hiddenStates, CStates]
+# print(encoderStates)
+#
+# decoderInputs = Input(shape=(length, 1))
+# print(decoderInputs)
+# decoderLSTM = LSTM(latent_dim, return_state=True, return_sequences=True)
+# decoderOutputs, _, _ = decoderLSTM(decoderInputs, initial_state=encoderStates)
+#
+# model = Model(inputs=[encoderInputs, decoderInputs], outputs=decoderOutputs)
+# optimizer = keras.optimizers.Adam(lr=0.001, decay=0.0001)
+# model.compile(optimizer=optimizer, loss='mean_squared_error')
+# model.summary()
+#
+# model.fit([inputCharacters, targetCharacters], targetCharacters, batch_size=batch_size, epochs=epochs, validation_split=0.2)
+# model.save('../Models/seq2seq.h5')
 
 # decoderDense = Dense(len(tar))
         # if innerValue not in targetCharacters:
