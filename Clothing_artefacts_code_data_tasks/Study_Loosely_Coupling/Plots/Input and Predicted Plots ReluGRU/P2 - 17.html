@@ -1,0 +1,84 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    
+      <meta charset="utf-8">
+      <title>Bokeh Plot</title>
+      
+      
+        
+          
+        
+        
+          
+        <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.3.2.min.js"></script>
+        <script type="text/javascript">
+            Bokeh.set_log_level("info");
+        </script>
+        
+      
+      
+    
+  </head>
+  
+  
+  <body>
+    
+      
+        
+          
+          
+            
+              <div class="bk-root" id="fe7c80f7-ad10-48ca-a32a-3add2031ef6b" data-root-id="2459"></div>
+            
+          
+        
+      
+      
+        <script type="application/json" id="2547">
+          {"9591a9e6-d4aa-476f-b84d-10da6ea1ecb1":{"roots":{"references":[{"attributes":{"text":"P2 - 17 - Error"},"id":"2460","type":"Title"},{"attributes":{},"id":"2467","type":"LinearScale"},{"attributes":{},"id":"2487","type":"CategoricalTickFormatter"},{"attributes":{"active_drag":"auto","active_inspect":"auto","active_multi":null,"active_scroll":"auto","active_tap":"auto"},"id":"2478","type":"Toolbar"},{"attributes":{"callback":null,"start":0},"id":"2463","type":"DataRange1d"},{"attributes":{"grid_line_color":null,"ticker":{"id":"2470","type":"CategoricalTicker"}},"id":"2472","type":"Grid"},{"attributes":{},"id":"2470","type":"CategoricalTicker"},{"attributes":{"axis_label":"Angle Error","formatter":{"id":"2485","type":"BasicTickFormatter"},"ticker":{"id":"2474","type":"BasicTicker"}},"id":"2473","type":"LinearAxis"},{"attributes":{"dimension":1,"ticker":{"id":"2474","type":"BasicTicker"}},"id":"2477","type":"Grid"},{"attributes":{"below":[{"id":"2469","type":"CategoricalAxis"}],"center":[{"id":"2472","type":"Grid"},{"id":"2477","type":"Grid"}],"left":[{"id":"2473","type":"LinearAxis"}],"plot_height":500,"plot_width":1200,"renderers":[{"id":"2482","type":"GlyphRenderer"}],"title":{"id":"2460","type":"Title"},"toolbar":{"id":"2478","type":"Toolbar"},"toolbar_location":null,"x_range":{"id":"2458","type":"FactorRange"},"x_scale":{"id":"2465","type":"CategoricalScale"},"y_range":{"id":"2463","type":"DataRange1d"},"y_scale":{"id":"2467","type":"LinearScale"}},"id":"2459","subtype":"Figure","type":"Plot"},{"attributes":{"source":{"id":"2457","type":"ColumnDataSource"}},"id":"2483","type":"CDSView"},{"attributes":{"callback":null,"data":{"counts":[21.24667092437924,31.157248887194083,33.98987375980532,38.31421831812672,20.49410846772444,49.09425291172829,25.203507909423212,20.903104080889428,30.284208130597268,28.47342151806715,22.991082995200156,32.989398419044434,35.917920142379636,34.299586385886336,24.048668698594973,17.691267656933018],"x":[["Glenohumeral Right Joint","inputError"],["Glenohumeral Right Joint","predictedError"],["Right Elbow","inputError"],["Right Elbow","predictedError"],["Left Elbow","inputError"],["Left Elbow","predictedError"],["Right Wrist","inputError"],["Right Wrist","predictedError"],["Left Wrist","inputError"],["Left Wrist","predictedError"],["Left Hip","inputError"],["Left Hip","predictedError"],["Left Knee","inputError"],["Left Knee","predictedError"],["Left Ankle","inputError"],["Left Ankle","predictedError"]]},"selected":{"id":"2490","type":"Selection"},"selection_policy":{"id":"2489","type":"UnionRenderers"}},"id":"2457","type":"ColumnDataSource"},{"attributes":{},"id":"2490","type":"Selection"},{"attributes":{},"id":"2465","type":"CategoricalScale"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"value":"#1f77b4"},"line_alpha":{"value":0.1},"line_color":{"value":"#1f77b4"},"top":{"field":"counts"},"width":{"value":0.9},"x":{"field":"x"}},"id":"2481","type":"VBar"},{"attributes":{},"id":"2485","type":"BasicTickFormatter"},{"attributes":{},"id":"2474","type":"BasicTicker"},{"attributes":{"formatter":{"id":"2487","type":"CategoricalTickFormatter"},"group_label_orientation":0.8,"major_label_orientation":"vertical","subgroup_label_orientation":"normal","ticker":{"id":"2470","type":"CategoricalTicker"}},"id":"2469","type":"CategoricalAxis"},{"attributes":{},"id":"2489","type":"UnionRenderers"},{"attributes":{"fill_color":{"value":"#1f77b4"},"line_color":{"value":"#1f77b4"},"top":{"field":"counts"},"width":{"value":0.9},"x":{"field":"x"}},"id":"2480","type":"VBar"},{"attributes":{"callback":null,"factors":[["Glenohumeral Right Joint","inputError"],["Glenohumeral Right Joint","predictedError"],["Right Elbow","inputError"],["Right Elbow","predictedError"],["Left Elbow","inputError"],["Left Elbow","predictedError"],["Right Wrist","inputError"],["Right Wrist","predictedError"],["Left Wrist","inputError"],["Left Wrist","predictedError"],["Left Hip","inputError"],["Left Hip","predictedError"],["Left Knee","inputError"],["Left Knee","predictedError"],["Left Ankle","inputError"],["Left Ankle","predictedError"]],"range_padding":0.1},"id":"2458","type":"FactorRange"},{"attributes":{"data_source":{"id":"2457","type":"ColumnDataSource"},"glyph":{"id":"2480","type":"VBar"},"hover_glyph":null,"muted_glyph":null,"nonselection_glyph":{"id":"2481","type":"VBar"},"selection_glyph":null,"view":{"id":"2483","type":"CDSView"}},"id":"2482","type":"GlyphRenderer"}],"root_ids":["2459"]},"title":"Bokeh Application","version":"1.3.2"}}
+        </script>
+        <script type="text/javascript">
+          (function() {
+            var fn = function() {
+              Bokeh.safely(function() {
+                (function(root) {
+                  function embed_document(root) {
+                    
+                  var docs_json = document.getElementById('2547').textContent;
+                  var render_items = [{"docid":"9591a9e6-d4aa-476f-b84d-10da6ea1ecb1","roots":{"2459":"fe7c80f7-ad10-48ca-a32a-3add2031ef6b"}}];
+                  root.Bokeh.embed.embed_items(docs_json, render_items);
+                
+                  }
+                  if (root.Bokeh !== undefined) {
+                    embed_document(root);
+                  } else {
+                    var attempts = 0;
+                    var timer = setInterval(function(root) {
+                      if (root.Bokeh !== undefined) {
+                        embed_document(root);
+                        clearInterval(timer);
+                      }
+                      attempts++;
+                      if (attempts > 100) {
+                        console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                        clearInterval(timer);
+                      }
+                    }, 10, root)
+                  }
+                })(window);
+              });
+            };
+            if (document.readyState != "loading") fn();
+            else document.addEventListener("DOMContentLoaded", fn);
+          })();
+        </script>
+    
+  </body>
+  
+</html>
