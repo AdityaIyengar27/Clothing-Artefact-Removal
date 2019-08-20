@@ -21,12 +21,16 @@ inputCharacters = []
 targetCharacters = []
 input_test_data = []
 target_test_data = []
+target1 = []
+predict_data1 = []
 targ = []
 pred = []
 time_stamp_count = []
 redundant_time_stamp = []
 angleErr = 0
 errList = []
+errListPredict = []
+input_quat = []
 
 
 sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
@@ -40,7 +44,7 @@ predict_quat = []
 target_quat = []
 totalAngleErr = 0
 
-with open('RelevantMRPDataWithSubject.csv', 'r') as f:
+with open('MRPDataWithSubject.csv', 'r') as f:
     lines = list(f.read().split('\n'))
     # data.append(lines)
 
@@ -48,7 +52,7 @@ for line in lines:
     if not line:
         continue
     mylist = line.split(',')
-    if mylist[0] == 'P2':
+    if mylist[0] == 'P1':
         if mylist[1] == 'Loose MRP Data':
             # for value in mylist[2:]:
             #     print()
@@ -106,27 +110,32 @@ target_test_data = list(itertools.chain(*targetData))
 
 noOfZeros = (length * 3) - (len(target_test_data) % (length * 3))
 target_test_data = np.pad(target_test_data, (0, noOfZeros), 'constant')
-print(len(target_test_data))
+target1 = target_test_data
 targetCharacters = target_test_data.reshape(int(target_test_data.size / 600), length, 3)
 
-print("input " , inputCharacters.shape)
-print("target ", targetCharacters.shape)
+# print("input " , inputCharacters.shape)
+# print("target ", targetCharacters.shape)
 
-model = load_model('../Models/seq2seqRelevantMRPWithLSTMRegularizertanh15_09_11.h5')
+model = load_model('../Models/seq2seqRelevantMRPWithLSTMRegularizertanh15_09_11_additional_epochs.h5')
 
-# print(model.metrics_names)
-# evaluate = model.evaluate(inputCharacters,targetCharacters,verbose = 1)
+print(model.metrics_names)
+#evaluate = model.evaluate(inputCharacters,targetCharacters,verbose = 1)
 predict = model.predict(inputCharacters)
 print("predict ",predict.shape)
-score,mean,acc = model.evaluate(targetCharacters,predict,batch_size = 64,verbose = 1)
+score = model.evaluate(targetCharacters,predict,batch_size = 64,verbose = 1)
 
 #print("predict " , predict.shape)
 #print("loss ", evaluate)
-print('Test score:', score)
-print('Test accuracy:', acc)
-print('Test Error: ',  mean)
-# predict_data = list(itertools.chain(*predict))
-# #predict_data = list(itertools.chain(*predict_data))
+# print('Test score:', score)
+
+predict_data1 = list(itertools.chain(*predict))
+predict_data1 = list(itertools.chain(*predict_data1))
+print("Shape of target ", len(target1), "shape of predict ", len(predict_data1))
+
+predict_data1 = np.asarray((predict_data1[:1023]))
+target1 = target1[:1023].astype(float)
+print(type(predict_data1), " ", type(target1) )
+print((predict_data1), " ", (target1))
 # predict_quat = predict_data[0:699]
 # #t = np.asarray(target_quat)
 # #print((target_quat))
@@ -149,30 +158,64 @@ print('Test Error: ',  mean)
 # b = MRP_to_quaternion(predict_quat)
 # c = eval.angleErrEuler(a,b)
 # print(c)
-
-for i in range(0,targetCharacters.shape[0]):
-    for j in range(0,length):
-        predict_quat.append(MRP_to_quaternion(predict[i][j]))
-        h = Quaternion(MRP_to_quaternion(predict[i][j]))
-
-           # print("predict ", predict[i][j])
-           # print("inside ",(targetCharacters[i][j]).astype(float))
-
-        target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
-        o = Quaternion(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
-
-        angleErr += eval.angleErrEuler(eval,q1 = h,q2 = o)
-        #print("error ", eval.angleErr(eval,q1 = h,q2 = o))
-        #print((predict[i][j]))
-    errList.append(angleErr/length)
-    pred.append(predict_quat)
-    targ.append(target_quat)
-    predict_quat = []
-    target_quat = []
-
-
-
-print(errList)
+# print((redundant_time_stamp))
+# print(len(time_stamp_count))
+# print(time_stamp_count[0] % 200)
+# for i in range(0,targetCharacters.shape[0]):
+#     for j in range(0,length):
+#         predict_quat.append(MRP_to_quaternion(predict[i][j]))
+#         h = Quaternion(MRP_to_quaternion(predict[i][j]))
+#
+#            # print("predict ", predict[i][j])
+#            # print("inside ",(targetCharacters[i][j]).astype(float))
+#
+#         target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+#         o = Quaternion(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+#         value = eval.angleErr(eval, q1=h, q2=o)
+#         #print(value)
+#         # if (value > 180):
+#         #     value = abs(360 - value)
+#         angleErr += value
+#         #print("error ", eval.angleErr(eval,q1 = h,q2 = o))
+#         #print((predict[i][j]))
+#
+#     errListPredict.append(angleErr/length)
+#
+#     angleErr = 0
+#     pred.append(predict_quat)
+#     targ.append(target_quat)
+#     predict_quat = []
+#     target_quat = []
+# print((180 / np.pi))
+#
+# for i in range(0,targetCharacters.shape[0]):
+#     for j in range(0,length):
+#         input_quat.append(MRP_to_quaternion((inputCharacters[i][j]).astype(float)))
+#         h = Quaternion(MRP_to_quaternion((inputCharacters[i][j]).astype(float)))
+#
+#            # print("predict ", predict[i][j])
+#            # print("inside ",(targetCharacters[i][j]).astype(float))
+#
+#         target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+#         o = Quaternion(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+#         value = eval.angleErr(eval, q1=h, q2=o)
+#         #print(value)
+#         # if (value > 180):
+#         #     value = abs(360 - value)
+#         angleErr += value
+#         #print("error ", eval.angleErr(eval,q1 = h,q2 = o))
+#         #print((predict[i][j]))
+#
+#     errList.append(angleErr/length)
+#
+#     angleErr = 0
+#     # pred.append(predict_quat)
+#     # targ.append(target_quat)
+#     input_quat = []
+#     target_quat = []
+# print(errList)
+# print(errListPredict)
+# print("max error between input & target ",max(errList),"max error between target & predicted ", max(errListPredict))
 # print(len(pred))
 # print(time_stamp_count)
 # print("size of padding ", noOfZeros)
