@@ -1,7 +1,6 @@
 import math
 
 import numpy
-
 # epsilon for testing whether a number is close to zero
 _EPS = numpy.finfo(float).eps * 4.0
 

@@ -5,6 +5,15 @@ import numpy as np
 import random
 import keras, tensorflow as tf
 import itertools
+from statistics import mean
+from math import pi
+
+from bokeh.models import CustomJS, ColumnDataSource, FactorRange
+from bokeh.io import show, output_file
+from bokeh.models.annotations import Title
+# from bokeh.palettes import inferno
+from bokeh.plotting import figure, output_file, save
+
 import re
 from ast import literal_eval
 from keras.models import Model, Sequential
@@ -43,17 +52,21 @@ hold_val_index = []
 predict_quat = []
 target_quat = []
 totalAngleErr = 0
+angleRowDictionaryForLooseData = {}
+angleRowDictionaryForTightData = {}
 
-with open('MRPDataWithSubject.csv', 'r') as f:
+with open('RelevantMRPDataWithSubject.csv', 'r') as f:
     lines = list(f.read().split('\n'))
     # data.append(lines)
+
+length = 200
 
 for line in lines:
     if not line:
         continue
     mylist = line.split(',')
-    if mylist[0] == 'P1':
-        if mylist[1] == 'Loose MRP Data':
+    if mylist[0] == 'P2':
+        if mylist[2] == 'Loose MRP Data':
             # for value in mylist[2:]:
             #     print()
             #     if value not in inputCharacters:
@@ -61,10 +74,17 @@ for line in lines:
             # mylist.append('\n')
             # tempList = mylist[2:]
             # for x in range(0, len(tempList)):
-                # tempList.append(literal_eval(x))
-            tempList = mylist[3:]
+            # tempList.append(literal_eval(x))
+            tempList = mylist[4:]
+            # print(len(tempList))
+            # print(tempList)
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
             tempList = list(filter(None, itertools.chain(*tempList)))
+            tempList = [float(i) for i in tempList]
+            paddingValues = mean(tempList)
+            noOfPaddingValues = (length * 3) - (len(tempList) % (length * 3))
+            tempList = np.pad(tempList, (0, noOfPaddingValues), 'constant', constant_values=paddingValues)
+            angleRowDictionaryForLooseData[mylist[1] + "," + mylist[3]] = tempList.size / (length * 3)
             inputData.append(tempList)
             tempList = []
         else:
@@ -73,14 +93,16 @@ for line in lines:
             #         targetCharacters.add(value)
             # mylist.insert(2, '\t')
             # mylist.append('\n')
-            tempList = mylist[3:]
-            print(len(tempList),mylist[2])
-            if(len(tempList) not in time_stamp_count):
-                time_stamp_count.append(len(tempList))
-            redundant_time_stamp.append(len(tempList))
-            target_quat = tempList
+            tempList = mylist[4:]
+            # print(len(tempList))
+            # print(tempList)
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
             tempList = list(filter(None, itertools.chain(*tempList)))
+            tempList = [float(i) for i in tempList]
+            paddingValues = mean(tempList)
+            noOfPaddingValues = (length * 3) - (len(tempList) % (length * 3))
+            tempList = np.pad(tempList, (0, noOfPaddingValues), 'constant', constant_values=paddingValues)
+            angleRowDictionaryForTightData[mylist[1] + "," + mylist[3]] = tempList.size / (length * 3)
             targetData.append(tempList)
             tempList = []
 
@@ -100,23 +122,22 @@ for line in lines:
 # print(inputData[0])
 # print(targetData[0])
 
-length = 200
-input_test_data = list(itertools.chain(*inputData))
-noOfZeros = (length * 3) - (len(input_test_data) % (length * 3))
-input_test_data = np.pad(input_test_data, (0, noOfZeros), 'constant')
+input_test_data = np.asarray(list(itertools.chain(*inputData)))
+# noOfZeros = (length * 3) - (len(input_test_data) % (length * 3))
+# input_test_data = np.pad(input_test_data, (0, noOfZeros), 'constant')
 inputCharacters = input_test_data.reshape(int(input_test_data.size / 600), length, 3)
 
-target_test_data = list(itertools.chain(*targetData))
+target_test_data = np.asarray(list(itertools.chain(*targetData)))
 
-noOfZeros = (length * 3) - (len(target_test_data) % (length * 3))
-target_test_data = np.pad(target_test_data, (0, noOfZeros), 'constant')
+# noOfZeros = (length * 3) - (len(target_test_data) % (length * 3))
+# target_test_data = np.pad(target_test_data, (0, noOfZeros), 'constant')
 target1 = target_test_data
 targetCharacters = target_test_data.reshape(int(target_test_data.size / 600), length, 3)
 
 # print("input " , inputCharacters.shape)
 # print("target ", targetCharacters.shape)
 
-model = load_model('../Models/seq2seqRelevantMRPWithLSTMRegularizertanh15_09_11_additional_epochs.h5')
+model = load_model('../Models/seq2seqRelevantMRPWithLSTMRegularizertanh19_09_19.h5')
 
 print(model.metrics_names)
 #evaluate = model.evaluate(inputCharacters,targetCharacters,verbose = 1)
@@ -132,10 +153,10 @@ predict_data1 = list(itertools.chain(*predict))
 predict_data1 = list(itertools.chain(*predict_data1))
 print("Shape of target ", len(target1), "shape of predict ", len(predict_data1))
 
-predict_data1 = np.asarray((predict_data1[:1023]))
-target1 = target1[:1023].astype(float)
-print(type(predict_data1), " ", type(target1) )
-print((predict_data1), " ", (target1))
+# predict_data1 = np.asarray((predict_data1[:1023]))
+# target1 = target1[:1023].astype(float)
+# print(type(predict_data1), " ", type(target1) )
+# print((predict_data1), " ", (target1))
 # predict_quat = predict_data[0:699]
 # #t = np.asarray(target_quat)
 # #print((target_quat))
@@ -161,61 +182,126 @@ print((predict_data1), " ", (target1))
 # print((redundant_time_stamp))
 # print(len(time_stamp_count))
 # print(time_stamp_count[0] % 200)
-# for i in range(0,targetCharacters.shape[0]):
-#     for j in range(0,length):
-#         predict_quat.append(MRP_to_quaternion(predict[i][j]))
-#         h = Quaternion(MRP_to_quaternion(predict[i][j]))
-#
-#            # print("predict ", predict[i][j])
-#            # print("inside ",(targetCharacters[i][j]).astype(float))
-#
-#         target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
-#         o = Quaternion(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
-#         value = eval.angleErr(eval, q1=h, q2=o)
-#         #print(value)
-#         # if (value > 180):
-#         #     value = abs(360 - value)
-#         angleErr += value
-#         #print("error ", eval.angleErr(eval,q1 = h,q2 = o))
-#         #print((predict[i][j]))
-#
-#     errListPredict.append(angleErr/length)
-#
-#     angleErr = 0
-#     pred.append(predict_quat)
-#     targ.append(target_quat)
-#     predict_quat = []
-#     target_quat = []
-# print((180 / np.pi))
-#
-# for i in range(0,targetCharacters.shape[0]):
-#     for j in range(0,length):
-#         input_quat.append(MRP_to_quaternion((inputCharacters[i][j]).astype(float)))
-#         h = Quaternion(MRP_to_quaternion((inputCharacters[i][j]).astype(float)))
-#
-#            # print("predict ", predict[i][j])
-#            # print("inside ",(targetCharacters[i][j]).astype(float))
-#
-#         target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
-#         o = Quaternion(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
-#         value = eval.angleErr(eval, q1=h, q2=o)
-#         #print(value)
-#         # if (value > 180):
-#         #     value = abs(360 - value)
-#         angleErr += value
-#         #print("error ", eval.angleErr(eval,q1 = h,q2 = o))
-#         #print((predict[i][j]))
-#
-#     errList.append(angleErr/length)
-#
-#     angleErr = 0
-#     # pred.append(predict_quat)
-#     # targ.append(target_quat)
-#     input_quat = []
-#     target_quat = []
-# print(errList)
-# print(errListPredict)
-# print("max error between input & target ",max(errList),"max error between target & predicted ", max(errListPredict))
+for i in range(0,targetCharacters.shape[0]):
+    for j in range(0,length):
+        predict_quat.append(MRP_to_quaternion(predict[i][j]))
+        h = Quaternion(MRP_to_quaternion(predict[i][j]))
+
+           # print("predict ", predict[i][j])
+           # print("inside ",(targetCharacters[i][j]).astype(float))
+
+        target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+        o = Quaternion(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+        value = eval.angleErr(eval, q1=h, q2=o)
+        #print(value)
+        # if (value > 180):
+        #     value = abs(360 - value)
+        angleErr += value
+        #print("error ", eval.angleErr(eval,q1 = h,q2 = o))
+        #print((predict[i][j]))
+
+    errListPredict.append(angleErr/length)
+
+    angleErr = 0
+    pred.append(predict_quat)
+    targ.append(target_quat)
+    predict_quat = []
+    target_quat = []
+print((180 / np.pi))
+
+for i in range(0,targetCharacters.shape[0]):
+    for j in range(0,length):
+        input_quat.append(MRP_to_quaternion((inputCharacters[i][j]).astype(float)))
+        h = Quaternion(MRP_to_quaternion((inputCharacters[i][j]).astype(float)))
+
+           # print("predict ", predict[i][j])
+           # print("inside ",(targetCharacters[i][j]).astype(float))
+
+        target_quat.append(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+        o = Quaternion(MRP_to_quaternion((targetCharacters[i][j]).astype(float)))
+        value = eval.angleErr(eval, q1=h, q2=o)
+        #print(value)
+        # if (value > 180):
+        #     value = abs(360 - value)
+        angleErr += value
+        #print("error ", eval.angleErr(eval,q1 = h,q2 = o))
+        #print((predict[i][j]))
+
+    errList.append(angleErr/length)
+
+    angleErr = 0
+    # pred.append(predict_quat)
+    # targ.append(target_quat)
+    input_quat = []
+    target_quat = []
+print("input target ",errList)
+print("target predicted ",errListPredict)
+print("max error between input & target ",max(errList),"max error between target & predicted ", max(errListPredict))
+
+# inputtarget = []
+# targetpredict = []
+startValue = 0
+movementPredictError = {}
+movementInputError = {}
+# endValue = 0
+for jointValue in angleRowDictionaryForLooseData:
+    noOfRows = int(angleRowDictionaryForLooseData.get(jointValue))
+    # for error in errList:
+    meanInputError = mean(errList[startValue:(startValue+noOfRows)])
+    meanPredictError = mean(errListPredict[startValue:(startValue+noOfRows)])
+    # inputtarget.append()
+    # targetpredict.append()
+    movementInputError[jointValue] = meanInputError
+    movementPredictError[jointValue] = meanPredictError
+    startValue += noOfRows
+
+print(movementInputError)
+print(movementPredictError)
+path = '../Plots/Input and Predicted Plots/'
+currentMovementNumber = "1"
+movementnumber = "1"
+movementInput = []
+movementPredict = []
+jointList = []
+for movement in movementInputError:
+    currentMovementNumber, joint = movement.split(",")
+    if currentMovementNumber != movementnumber:
+        output_file(path + "P2" + " - " + movementnumber + ".html")     # Name of the file to save the plot
+        plotValues = ['inputError', 'predictedError']
+        data = {
+            'joints': jointList,
+            'inputError': movementInput,
+            'predictedError': movementPredict
+        }
+        x = [ (joints, errorValues) for joints in jointList for errorValues in plotValues]
+        counts = sum(zip(data['inputError'], data['predictedError']), ())
+        source = ColumnDataSource(data=dict(x=x, counts=counts))
+        p = figure(x_range=FactorRange(*x), plot_height=500, plot_width=1200, title="P2" + " - " + movementnumber + " - Error", toolbar_location=None, tools="")
+        p.vbar(x='x', top='counts', width=0.9, source=source)
+        p.y_range.start = 0
+        p.x_range.range_padding = 0.1
+        p.yaxis.axis_label = "Angle Error"
+        p.xaxis.major_label_orientation = "vertical"
+        p.xaxis.subgroup_label_orientation = "normal"
+        p.xaxis.group_label_orientation = 0.8
+        p.xgrid.grid_line_color = None
+        save(p)
+
+        jointList = []
+        movementInput = []
+        movementPredict = []
+        # x = [(joint, )]
+    movementInput.append(movementInputError.get(movement))
+    movementPredict.append(movementPredictError.get(movement))
+    jointList.append(joint)
+    movementnumber = currentMovementNumber
+# 18T8 - Pelvis': 10.92862998552996 predicted
+# 18T8 - Pelvis': 15.137308057385335 input
+# 8Right Wrist': 49.581937756690266
+# 8Right Wrist': 11.882416554538528
+
+    # print(noOfRows, jointValue)
+
 # print(len(pred))
 # print(time_stamp_count)
 # print("size of padding ", noOfZeros)

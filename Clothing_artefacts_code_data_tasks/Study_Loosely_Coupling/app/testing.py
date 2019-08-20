@@ -37,7 +37,7 @@ for line in lines:
         continue
     mylist = line.split(',')
     if mylist[0] == 'P1':
-        if mylist[1] == 'Loose MRP Data':
+        if mylist[2] == 'Loose MRP Data':
             # for value in mylist[2:]:
             #     print()
             #     if value not in inputCharacters:
@@ -46,7 +46,7 @@ for line in lines:
             # tempList = mylist[2:]
             # for x in range(0, len(tempList)):
                 # tempList.append(literal_eval(x))
-            tempList = mylist[3:]
+            tempList = mylist[4:]
             # print(len(tempList))
             # print(tempList)
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
@@ -63,7 +63,7 @@ for line in lines:
             #         targetCharacters.add(value)
             # mylist.insert(2, '\t')
             # mylist.append('\n')
-            tempList = mylist[3:]
+            tempList = mylist[4:]
             # print(len(tempList))
             # print(tempList)
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]

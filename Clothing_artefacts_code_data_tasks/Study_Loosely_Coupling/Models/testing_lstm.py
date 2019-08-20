@@ -5,6 +5,7 @@ import random
 import keras, tensorflow as tf
 import itertools
 import re
+from statistics import mean
 from ast import literal_eval
 from keras.models import Model, Sequential
 from keras.layers import Input, LSTM, Dense, RepeatVector, TimeDistributed, GRU
@@ -27,9 +28,11 @@ hold_index = []
 hold_test_index = []
 hold_val_index = []
 
-with open('MRPDataWithSubject.csv', 'r') as f:
+with open('RelevantMRPDataWithSubject.csv', 'r') as f:
     lines = list(f.read().split('\n'))
     # data.append(lines)
+
+length = 200
 
 for line in lines:
     if not line:
@@ -44,10 +47,16 @@ for line in lines:
             # mylist.append('\n')
             # tempList = mylist[2:]
             # for x in range(0, len(tempList)):
-                # tempList.append(literal_eval(x))
+            # tempList.append(literal_eval(x))
             tempList = mylist[3:]
+            # print(len(tempList))
+            # print(tempList)
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
             tempList = list(filter(None, itertools.chain(*tempList)))
+            tempList = [float(i) for i in tempList]
+            paddingValues = mean(tempList)
+            noOfPaddingValues = (length * 3) - (len(tempList) % (length * 3))
+            tempList = np.pad(tempList, (0, noOfPaddingValues), 'constant', constant_values=paddingValues)
             inputData.append(tempList)
             tempList = []
         else:
@@ -57,8 +66,14 @@ for line in lines:
             # mylist.insert(2, '\t')
             # mylist.append('\n')
             tempList = mylist[3:]
+            # print(len(tempList))
+            # print(tempList)
             tempList = [i.strip("[]").strip("''").split(" ") for i in tempList]
             tempList = list(filter(None, itertools.chain(*tempList)))
+            tempList = [float(i) for i in tempList]
+            paddingValues = mean(tempList)
+            noOfPaddingValues = (length * 3) - (len(tempList) % (length * 3))
+            tempList = np.pad(tempList, (0, noOfPaddingValues), 'constant', constant_values=paddingValues)
             targetData.append(tempList)
             tempList = []
 
@@ -78,25 +93,25 @@ for line in lines:
 # print(inputData[0])
 # print(targetData[0])
 
-length = 200
-input_test_data = list(itertools.chain(*inputData))
-noOfZeros = (length * 3) - (len(input_test_data) % (length * 3))
-input_test_data = np.pad(input_test_data, (0, noOfZeros), 'constant')
+input_test_data = np.asarray(itertools.chain(*inputData))
+# noOfZeros = (length * 3) - (len(input_test_data) % (length * 3))
+# input_test_data = np.pad(input_test_data, (0, noOfZeros), 'constant')
 inputCharacters = input_test_data.reshape(int(input_test_data.size / 600), length, 3)
-
-target_test_data = list(itertools.chain(*targetData))
-noOfZeros = (length * 3) - (len(target_test_data) % (length * 3))
-target_test_data = np.pad(target_test_data, (0, noOfZeros), 'constant')
+print(inputCharacters.shape)
+target_test_data = np.asarray(itertools.chain(*targetData))
+# noOfZeros = (length * 3) - (len(target_test_data) % (length * 3))
+# target_test_data = np.pad(target_test_data, (0, noOfZeros), 'constant')
 targetCharacters = target_test_data.reshape(int(target_test_data.size / 600), length, 3)
-
+print(targetCharacters.shape)
 print("input " , inputCharacters[50][50])
 print("target ", targetCharacters[50][50])
-
-model = load_model('../Models/seq2seqRelevantMRPWithLSTMRegularizertanh15_09_11.h5')
+# Clothing_artefacts_code_data_tasks/Study_Loosely_Coupling/Models/.h5
+model = load_model('../Models/.h5')
 
 # print(model.metrics_names)
 # evaluate = model.evaluate(inputCharacters,targetCharacters,verbose = 1)
 predict = model.predict(inputCharacters)
+
 print(predict.shape)
 score,mean,acc = model.evaluate(targetCharacters,predict,batch_size = 64,verbose = 1)
 print("predict ", predict[50][50])

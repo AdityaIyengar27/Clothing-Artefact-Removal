@@ -80,13 +80,15 @@ def makeAngleFile(subject, csvWriter, jointPosition, looselyDataAngle, tightlyDa
     csvWriter.writerow(tightlyDataAngle)
 
 # def makeMRPFile()
-def makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData):
+def makeMRPFile(subject, csvWriter, movement, jointPosition, MRPLooseData, MRPTightData):
     # flag = conditionalDataReduction()
     MRPLooseData.insert(0, jointPosition)
     MRPLooseData.insert(0, 'Loose MRP Data')
+    MRPLooseData.insert(0, movement)
     MRPLooseData.insert(0, subject)
     MRPTightData.insert(0, jointPosition)
     MRPTightData.insert(0, 'Tight MRP Data')
+    MRPTightData.insert(0, movement)
     MRPTightData.insert(0, subject)
     csvWriter.writerow(MRPLooseData)
     csvWriter.writerow(MRPTightData)
@@ -235,14 +237,14 @@ with open(fileName, 'w') as outcsv:
                             if executeBlock == 3 or executeBlock == 4:
                                 makeAngleFile(subject, csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
                             if executeBlock == 5:
-                                makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
+                                makeMRPFile(subject, csvWriter, movement, jointPosition, MRPLooseData, MRPTightData)
                             if executeBlock == 6:
                                 if subject == 'P1':
                                     relevantJoints = jointListP1.get(str(movement))
                                 elif subject == 'P2':
                                     relevantJoints = jointListP2.get(str(movement))
                                 if jointPosition in relevantJoints:
-                                    makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
+                                    makeMRPFile(subject, csvWriter, movement, jointPosition, MRPLooseData, MRPTightData)
                             meanSquaredError = statistics.variance(errSeq[0])
                             standardDeviation = statistics.stdev(errSeq[0])
                             # print(errSeq, errSeqEuler, avgErr, avgErrEuler)
@@ -260,14 +262,14 @@ with open(fileName, 'w') as outcsv:
                         if executeBlock == 3 or executeBlock == 4:
                             makeAngleFile(subject, csvWriter, jointPosition, looselyDataAngle, tightlyDataAngle)
                         if executeBlock == 5:
-                            makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
+                            makeMRPFile(subject, csvWriter, movement, jointPosition, MRPLooseData, MRPTightData)
                         if executeBlock == 6:
                             if subject == 'P1':
                                 relevantJoints = jointListP1.get(str(movement))
                             elif subject == 'P2':
                                 relevantJoints = jointListP2.get(str(movement))
                             if jointPosition in relevantJoints:
-                                makeMRPFile(subject, csvWriter, jointPosition, MRPLooseData, MRPTightData)
+                                makeMRPFile(subject, csvWriter, movement, jointPosition, MRPLooseData, MRPTightData)
                         # for values in errSeq[0]:
                         #     meanSquaredError += (values - avgErr) ** 2
                         # meanSquaredError = meanSquaredError / len(errSeq[0])
