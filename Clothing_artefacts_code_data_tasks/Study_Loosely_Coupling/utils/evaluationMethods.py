@@ -15,18 +15,18 @@ class Evaluation():
 
     def scalarAngleErr(self, qRel):
         value = max(-1.0, min(qRel.elements[0], 1.0))
-        value = 2 * np.arccos(value)*self.ToDeg
+        value = 2 * np.arccos(value)*(180 / np.pi)
         if(value > 180):
             value = abs(360 - value)
         return value
 
     def angleErr(self, q1, q2):
-        return self.scalarAngleErr(self.qRel(q1, q2))
+        return self.scalarAngleErr(self=self,qRel=self.qRel(self,q1=q1, q2=q2))
 
     def angleErrEuler(self, q1, q2):
-        qRel = self.qRel(q1, q2)
+        qRel = self.qRel(self=self,q1=q1, q2=q2)
         errAngles = np.asarray(euler_from_quaternion(np.asarray(qRel.elements), axes='sxyz'))
-        return np.abs(errAngles)*self.ToDeg
+        return np.abs(errAngles)*(180 / np.pi)
 
     def angleErrRel(self, q1, q2, q3, q4):
         qRel1 = self.qRel(q1, q2)
