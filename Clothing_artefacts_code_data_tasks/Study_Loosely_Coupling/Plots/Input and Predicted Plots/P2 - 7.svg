@@ -1,0 +1,85 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    
+      <meta charset="utf-8">
+      <title>Bokeh Plot</title>
+      
+      
+        
+          
+        <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.css" type="text/css" />
+        
+        
+          
+        <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.js"></script>
+        <script type="text/javascript">
+            Bokeh.set_log_level("info");
+        </script>
+        
+      
+      
+    
+  </head>
+  
+  
+  <body>
+    
+      
+        
+          
+          
+            
+              <div class="bk-root" id="3aa44050-be1f-4bd2-ab43-0d4e90acdf7c"></div>
+            
+          
+        
+      
+      
+        <script type="application/json" id="1588">
+          {"537b2276-e0e1-4b91-9105-396c5824c5e3":{"roots":{"references":[{"attributes":{"callback":null,"data":{"counts":[6.743830210048781,12.723596840550384,7.946761128438802,23.827493000252375,37.74857750291917,36.96252620544707,27.48548370261592,23.284841946557037,36.508464838937996,53.704249028984684,37.8293320572009,9.862767836807087,22.40494834103429,69.11200314783895,6.534568645866538,18.327985442386368,5.627427176448501,8.512925243208002,6.429289426127348,8.683152939240593,8.946815174498981,7.841272668560137,22.308946194182404,6.7065734676846676,10.31938771827029,5.091489440593096,19.37487176172795,6.563778069150467],"x":[["Neck","inputError"],["Neck","predictedError"],["Glenohumeral Right Joint","inputError"],["Glenohumeral Right Joint","predictedError"],["Right Elbow","inputError"],["Right Elbow","predictedError"],["Glenohumeral Left Joint","inputError"],["Glenohumeral Left Joint","predictedError"],["Left Elbow","inputError"],["Left Elbow","predictedError"],["Right Wrist","inputError"],["Right Wrist","predictedError"],["Left Wrist","inputError"],["Left Wrist","predictedError"],["T8 - Pelvis","inputError"],["T8 - Pelvis","predictedError"],["Right Hip","inputError"],["Right Hip","predictedError"],["Left Hip","inputError"],["Left Hip","predictedError"],["Right Knee","inputError"],["Right Knee","predictedError"],["Left Knee","inputError"],["Left Knee","predictedError"],["Right Ankle","inputError"],["Right Ankle","predictedError"],["Left Ankle","inputError"],["Left Ankle","predictedError"]]},"selected":{"id":"1537","type":"Selection"},"selection_policy":{"id":"1538","type":"UnionRenderers"}},"id":"1505","type":"ColumnDataSource"},{"attributes":{"grid_line_color":{"value":null},"plot":{"id":"1508","subtype":"Figure","type":"Plot"},"ticker":{"id":"1518","type":"CategoricalTicker"}},"id":"1520","type":"Grid"},{"attributes":{},"id":"1522","type":"BasicTicker"},{"attributes":{"data_source":{"id":"1505","type":"ColumnDataSource"},"glyph":{"id":"1528","type":"VBar"},"hover_glyph":null,"muted_glyph":null,"nonselection_glyph":{"id":"1529","type":"VBar"},"selection_glyph":null,"view":{"id":"1531","type":"CDSView"}},"id":"1530","type":"GlyphRenderer"},{"attributes":{},"id":"1533","type":"CategoricalTickFormatter"},{"attributes":{"source":{"id":"1505","type":"ColumnDataSource"}},"id":"1531","type":"CDSView"},{"attributes":{},"id":"1538","type":"UnionRenderers"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"value":"#1f77b4"},"line_alpha":{"value":0.1},"line_color":{"value":"#1f77b4"},"top":{"field":"counts"},"width":{"value":0.9},"x":{"field":"x"}},"id":"1529","type":"VBar"},{"attributes":{"dimension":1,"plot":{"id":"1508","subtype":"Figure","type":"Plot"},"ticker":{"id":"1522","type":"BasicTicker"}},"id":"1525","type":"Grid"},{"attributes":{},"id":"1515","type":"LinearScale"},{"attributes":{"active_drag":"auto","active_inspect":"auto","active_multi":null,"active_scroll":"auto","active_tap":"auto"},"id":"1526","type":"Toolbar"},{"attributes":{},"id":"1513","type":"CategoricalScale"},{"attributes":{},"id":"1535","type":"BasicTickFormatter"},{"attributes":{"callback":null,"factors":[["Neck","inputError"],["Neck","predictedError"],["Glenohumeral Right Joint","inputError"],["Glenohumeral Right Joint","predictedError"],["Right Elbow","inputError"],["Right Elbow","predictedError"],["Glenohumeral Left Joint","inputError"],["Glenohumeral Left Joint","predictedError"],["Left Elbow","inputError"],["Left Elbow","predictedError"],["Right Wrist","inputError"],["Right Wrist","predictedError"],["Left Wrist","inputError"],["Left Wrist","predictedError"],["T8 - Pelvis","inputError"],["T8 - Pelvis","predictedError"],["Right Hip","inputError"],["Right Hip","predictedError"],["Left Hip","inputError"],["Left Hip","predictedError"],["Right Knee","inputError"],["Right Knee","predictedError"],["Left Knee","inputError"],["Left Knee","predictedError"],["Right Ankle","inputError"],["Right Ankle","predictedError"],["Left Ankle","inputError"],["Left Ankle","predictedError"]],"range_padding":0.1},"id":"1506","type":"FactorRange"},{"attributes":{"plot":null,"text":"P2 - 7 - Error"},"id":"1507","type":"Title"},{"attributes":{"axis_label":"Angle Error","formatter":{"id":"1535","type":"BasicTickFormatter"},"plot":{"id":"1508","subtype":"Figure","type":"Plot"},"ticker":{"id":"1522","type":"BasicTicker"}},"id":"1521","type":"LinearAxis"},{"attributes":{"formatter":{"id":"1533","type":"CategoricalTickFormatter"},"group_label_orientation":0.8,"major_label_orientation":"vertical","plot":{"id":"1508","subtype":"Figure","type":"Plot"},"subgroup_label_orientation":"normal","ticker":{"id":"1518","type":"CategoricalTicker"}},"id":"1517","type":"CategoricalAxis"},{"attributes":{},"id":"1537","type":"Selection"},{"attributes":{},"id":"1518","type":"CategoricalTicker"},{"attributes":{"callback":null,"start":0},"id":"1511","type":"DataRange1d"},{"attributes":{"below":[{"id":"1517","type":"CategoricalAxis"}],"left":[{"id":"1521","type":"LinearAxis"}],"plot_height":500,"plot_width":1200,"renderers":[{"id":"1517","type":"CategoricalAxis"},{"id":"1520","type":"Grid"},{"id":"1521","type":"LinearAxis"},{"id":"1525","type":"Grid"},{"id":"1530","type":"GlyphRenderer"}],"title":{"id":"1507","type":"Title"},"toolbar":{"id":"1526","type":"Toolbar"},"toolbar_location":null,"x_range":{"id":"1506","type":"FactorRange"},"x_scale":{"id":"1513","type":"CategoricalScale"},"y_range":{"id":"1511","type":"DataRange1d"},"y_scale":{"id":"1515","type":"LinearScale"}},"id":"1508","subtype":"Figure","type":"Plot"},{"attributes":{"fill_color":{"value":"#1f77b4"},"line_color":{"value":"#1f77b4"},"top":{"field":"counts"},"width":{"value":0.9},"x":{"field":"x"}},"id":"1528","type":"VBar"}],"root_ids":["1508"]},"title":"Bokeh Application","version":"1.0.2"}}
+        </script>
+        <script type="text/javascript">
+          (function() {
+            var fn = function() {
+              Bokeh.safely(function() {
+                (function(root) {
+                  function embed_document(root) {
+                    
+                  var docs_json = document.getElementById('1588').textContent;
+                  var render_items = [{"docid":"537b2276-e0e1-4b91-9105-396c5824c5e3","roots":{"1508":"3aa44050-be1f-4bd2-ab43-0d4e90acdf7c"}}];
+                  root.Bokeh.embed.embed_items(docs_json, render_items);
+                
+                  }
+                  if (root.Bokeh !== undefined) {
+                    embed_document(root);
+                  } else {
+                    var attempts = 0;
+                    var timer = setInterval(function(root) {
+                      if (root.Bokeh !== undefined) {
+                        embed_document(root);
+                        clearInterval(timer);
+                      }
+                      attempts++;
+                      if (attempts > 100) {
+                        console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                        clearInterval(timer);
+                      }
+                    }, 10, root)
+                  }
+                })(window);
+              });
+            };
+            if (document.readyState != "loading") fn();
+            else document.addEventListener("DOMContentLoaded", fn);
+          })();
+        </script>
+    
+  </body>
+  
+</html>

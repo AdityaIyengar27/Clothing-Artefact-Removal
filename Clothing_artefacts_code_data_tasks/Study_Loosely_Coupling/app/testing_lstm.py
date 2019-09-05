@@ -14,7 +14,8 @@ from bokeh.models.annotations import Title
 # from bokeh.palettes import inferno
 from bokeh.plotting import figure, output_file, save
 from bokeh.transform import factor_cmap
-from bokeh.palettes import brewer
+# from bokeh.palettes impor
+# import palettes
 import re
 from ast import literal_eval
 from keras.models import Model, Sequential
@@ -137,8 +138,8 @@ targetCharacters = target_test_data.reshape(int(target_test_data.size / 600), le
 
 # print("input " , inputCharacters.shape)
 # print("target ", targetCharacters.shape)
-
-model = load_model('../Models/seq2seqMRPWithRegularizerReluGRUBatch64.h5')
+# Clothing_artefacts_code_data_tasks/Study_Loosely_Coupling/Models/seq2seqMRPWithRegularizerReluGRUBatch64.h5
+model = load_model('../Models/seq2seqRelevantMRPWithGRURegularizerrelu20_08_19.h5')
 
 print(model.metrics_names)
 #evaluate = model.evaluate(inputCharacters,targetCharacters,verbose = 1)
@@ -258,7 +259,7 @@ for jointValue in angleRowDictionaryForLooseData:
 
 print(movementInputError)
 print(movementPredictError)
-path = '../Plots/Input and Predicted Plots GRUBatch64/'
+path = '../Plots/Input and Predicted Plots GRU Relu 20_08_19/'
 currentMovementNumber = "1"
 movementnumber = "1"
 movementInput = []
@@ -277,8 +278,8 @@ for movement in movementInputError:
         x = [ (joints, errorValues) for joints in jointList for errorValues in plotValues]
         counts = sum(zip(data['inputError'], data['predictedError']), ())
         source = ColumnDataSource(data=dict(x=x, counts=counts))
-        p = figure(x_range=FactorRange(*x), plot_height=500, plot_width=1200, title="P2" + " - " + movementnumber + " - Error", toolbar_location=None, tools="")
-        p.vbar(x='x', top='counts', width=0.9, source=source,fill_color=factor_cmap('x', palette=palette, factors=plotValues, start=1, end=2))
+        p = figure(x_range=FactorRange(*x), plot_height=500, plot_width=1200, title="P2" + " - " + movementnumber + " - Error")
+        p.vbar(x='x', top='counts', width=0.9, source=source)
         p.y_range.start = 0
         p.x_range.range_padding = 0.1
         p.yaxis.axis_label = "Angle Error"
