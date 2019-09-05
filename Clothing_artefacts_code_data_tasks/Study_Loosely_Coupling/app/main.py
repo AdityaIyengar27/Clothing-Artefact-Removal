@@ -11,7 +11,7 @@ import pandas as pd
 from Clothing_artefacts_code_data_tasks.Study_Loosely_Coupling.app.createplots import createplotsforsegments, \
     createplotsforjointOrientation
 
-executeBlock = 2
+executeBlock = 0
 
 # Function to ask to pass arguments
 def printArguments ():
